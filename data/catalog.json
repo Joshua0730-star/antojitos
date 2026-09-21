@@ -1,0 +1,69 @@
+{
+  "comercio": "Antojitos",
+  "telefono_contacto": "+57 300 000 0000",
+  "numero_nequi": "3001234567",
+  "metodos_pago": [
+    "Efectivo contra entrega",
+    "Transferencia Nequi"
+  ],
+  "productos": [
+    {
+      "id": "fresas_crema_std",
+      "nombre": "Fresas con Crema Especiales",
+      "categoria": "Fresas",
+      "descripcion": "Fresas frescas con crema de la casa y toppings a elección.",
+      "precio_base": 12000,
+      "opciones": {
+        "tamaño": [
+          { "nombre": "Personal", "adicional": 0 },
+          { "nombre": "Grande", "adicional": 4000 }
+        ],
+        "toppings": {
+          "max_seleccion": 2,
+          "lista": [
+            "ChocoKrispis",
+            "Mani",
+            "Queso",
+            "Chispas de Chocolate"
+          ]
+        }
+      }
+    },
+    {
+      "id": "oblea_tradicional",
+      "nombre": "Oblea la Especial",
+      "categoria": "Obleas",
+      "descripcion": "Oblea crujiente con arequipe, queso y adición a elegir.",
+      "precio_base": 7000,
+      "opciones": {
+        "salsa": [
+          "Arequipe",
+          "Lecherita",
+          "Mora"
+        ],
+        "adiciones_extra": [
+          { "nombre": "Salsa de Fresa", "adicional": 1000 },
+          { "nombre": "Doble Queso", "adicional": 2000 }
+        ]
+      }
+    },
+    {
+      "id": "ensalada_frutas_clasica",
+      "nombre": "Ensalada de Frutas Especial",
+      "categoria": "Ensaladas",
+      "descripcion": "Variedad de frutas frescas de temporada, helado y queso rayado.",
+      "precio_base": 14000,
+      "opciones": {
+        "sabor_helado": [
+          "Vainilla",
+          "Chocolate",
+          "Fresa"
+        ],
+        "extra_queso": [
+          { "nombre": "Sin extra queso", "adicional": 0 },
+          { "nombre": "Con extra queso", "adicional": 1500 }
+        ]
+      }
+    }
+  ]
+}
