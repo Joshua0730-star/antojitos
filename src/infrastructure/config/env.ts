@@ -52,4 +52,7 @@ export const ENV = {
   ,BUSINESS_CLOSED_WEEKDAYS: (process.env.BUSINESS_CLOSED_WEEKDAYS || '1').split(',').map(value => parseInt(value.trim(), 10)).filter(Number.isInteger)
   ,BUSINESS_CLOSED_MESSAGE: process.env.BUSINESS_CLOSED_MESSAGE || '¡Hola! 🍓 En este momento estamos fuera de horario. Déjanos tu mensaje y te atenderemos en nuestro próximo horario de atención.'
   ,MENU_PDF_URL: process.env.MENU_PDF_URL || 'https://antojitos-bot-tcb4sy2tpq-uc.a.run.app/menu.pdf'
+  ,PANEL_API_URL: process.env.PANEL_API_URL || ''
+  ,PANEL_API_TOKEN: process.env.PANEL_API_TOKEN || ''
+  ,OUTBOX_DISPATCH_INTERVAL_MS: parseInt(process.env.OUTBOX_DISPATCH_INTERVAL_MS || '5000', 10)
 };

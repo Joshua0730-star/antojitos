@@ -63,4 +63,5 @@ export class PanelOrderNotifierError extends Error {
 
 export interface IPanelOrderNotifier {
   publish(order: Order): Promise<PanelOrderPublishResult>;
+  publishPayload(payload: PanelOrderPayload): Promise<PanelOrderPublishResult>;
 }

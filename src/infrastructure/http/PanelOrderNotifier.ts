@@ -63,7 +63,14 @@ export class PanelOrderNotifier implements IPanelOrderNotifier {
   }
 
   public async publish(order: Order): Promise<PanelOrderPublishResult> {
-    const payload = this.toPayload(order);
+    return this.publishPayload(this.toPayload(order));
+  }
+
+  public toPanelPayload(order: Order): PanelOrderPayload {
+    return this.toPayload(order);
+  }
+
+  public async publishPayload(payload: PanelOrderPayload): Promise<PanelOrderPublishResult> {
     let lastError: PanelOrderNotifierError | undefined;
 
     for (let attempt = 1; attempt <= this.maxAttempts; attempt += 1) {
@@ -73,7 +80,7 @@ export class PanelOrderNotifier implements IPanelOrderNotifier {
 
         if (response.ok) {
           return {
-            orderId: order.id,
+            orderId: payload.order_id,
             attempts: attempt,
             status: response.status,
             responseBody
@@ -84,7 +91,7 @@ export class PanelOrderNotifier implements IPanelOrderNotifier {
         lastError = new PanelOrderNotifierError(
           `El panel rechazó el pedido con HTTP ${response.status}`,
           kind,
-          order.id,
+          payload.order_id,
           attempt,
           response.status,
           responseBody
@@ -105,7 +112,7 @@ export class PanelOrderNotifier implements IPanelOrderNotifier {
           lastError = new PanelOrderNotifierError(
             kind === 'timeout' ? 'Se agotó el tiempo de espera del panel' : 'No se pudo conectar con el panel',
             kind,
-            order.id,
+            payload.order_id,
             attempt,
             undefined,
             undefined,
@@ -121,7 +128,7 @@ export class PanelOrderNotifier implements IPanelOrderNotifier {
       await this.sleep(this.retryDelay(attempt));
     }
 
-    throw lastError ?? new PanelOrderNotifierError('No se pudo publicar el pedido', 'network', order.id, this.maxAttempts);
+    throw lastError ?? new PanelOrderNotifierError('No se pudo publicar el pedido', 'network', payload.order_id, this.maxAttempts);
   }
 
   private toPayload(order: Order): PanelOrderPayload {

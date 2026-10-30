@@ -8,6 +8,8 @@ import { GuardrailsService } from '../services/GuardrailsService.js';
 import { ObservabilityService } from '../services/ObservabilityService.js';
 import { ENV } from '../../infrastructure/config/env.js';
 import { IOrderRepository } from '../../domain/repositories/IOrderRepository.js';
+import { createOrderFsm } from '../../domain/fsm/orderFsm.js';
+import type { ConversationState } from '../../domain/repositories/IConversationRepository.js';
 
 export interface IncomingMessagePayload {
   from: string; // Teléfono, JID o LID del cliente
@@ -106,7 +108,53 @@ export class ProcessIncomingMessageUseCase {
       };
     }
 
-    // 4. PILAR 4: ENRUTAMIENTO RÁPIDO DE INTENCIONES (Fast Intent & Semantic Cache)
+    // 4. FSM determinista opcional. Está desactivada por defecto para preservar
+    // el comportamiento histórico y se habilita explícitamente por entorno.
+    let state: ConversationState | undefined;
+    if (this.isDeterministicFsmEnabled() && !imageUrl && userText.trim()) {
+      state = await this.conversationRepo.getState(phoneNumber);
+      const fsmResult = createOrderFsm(state.fsmSession).transition({
+        type: 'MESSAGE',
+        text: userText
+      });
+      state.fsmSession = fsmResult.session;
+      state.updatedAt = new Date();
+
+      // La FSM usa accepted para indicar que la transición fue válida. Su
+      // respuesta genérica de reintento, sin embargo, deja el turno al LLM
+      // para conservar la capacidad conversacional del flujo existente.
+      const resolved = fsmResult.accepted && (
+        fsmResult.session.unknownAttempts === 0 ||
+        fsmResult.session.state === 'HANDOFF'
+      );
+
+      if (resolved) {
+        const now = new Date();
+        state.messages.push(
+          { role: 'user', content: userText, timestamp: now },
+          { role: 'assistant', content: fsmResult.reply, timestamp: now }
+        );
+        await this.conversationRepo.saveState(state);
+
+        if (fsmResult.session.state === 'HANDOFF' && this.coexistenceService) {
+          await this.coexistenceService.registerHumanEcho(phoneNumber);
+        }
+
+        await this.whatsAppService.sendMessage(phoneNumber, fsmResult.reply);
+        this.observability.increment('repliesSent');
+        return {
+          replied: true,
+          replyMessage: fsmResult.reply,
+          isCallRejection: false
+        };
+      }
+
+      // Persistimos también los intentos no resueltos para que el segundo
+      // intento pueda activar el handoff determinista.
+      await this.conversationRepo.saveState(state);
+    }
+
+    // 5. PILAR 4: ENRUTAMIENTO RÁPIDO DE INTENCIONES (Fast Intent & Semantic Cache)
     // Si no hay imagen adjunta, evaluamos intenciones instantáneas (saludo, menú, horario, ubicación)
     if (!imageUrl && this.intentRouter) {
       const match = this.intentRouter.routeIntent(userText);
@@ -141,8 +189,8 @@ export class ProcessIncomingMessageUseCase {
       }
     }
 
-    // 5. PILAR 3: GESTIÓN DE HISTORIAL Y CONTEXTO JERÁRQUICO
-    const state = await this.conversationRepo.getState(phoneNumber);
+    // 6. PILAR 3: GESTIÓN DE HISTORIAL Y CONTEXTO JERÁRQUICO
+    state ||= await this.conversationRepo.getState(phoneNumber);
 
     // Registrar mensaje del usuario en el historial
     await this.conversationRepo.addMessage(phoneNumber, {
@@ -163,7 +211,7 @@ export class ProcessIncomingMessageUseCase {
       await this.conversationRepo.saveState(state);
     }
 
-    // 6. PILAR 1 Y 5: INFERENCIA CON MOTOR DE IA Y TOOL CALLING (CON MANEJO DE FALLBACK)
+    // 7. PILAR 1 Y 5: INFERENCIA CON MOTOR DE IA Y TOOL CALLING (CON MANEJO DE FALLBACK)
     let aiResponse: AIResponse;
     try {
       const startedAt = Date.now();
@@ -181,7 +229,7 @@ export class ProcessIncomingMessageUseCase {
       this.observability.increment('fallbackReplies');
     }
 
-    // 7. PILAR 6: GUARDRAILS DE SALIDA (Output Validation)
+    // 8. PILAR 6: GUARDRAILS DE SALIDA (Output Validation)
     // Después de confirmar, no dejamos que el modelo convierta la respuesta
     // en otra explicación larga. La confirmación al cliente es deliberadamente
     // corta; el detalle completo ya fue enviado al canal de cocina.
@@ -192,14 +240,14 @@ export class ProcessIncomingMessageUseCase {
     const finalReply = outputValidation.sanitizedText;
     this.observability.evaluateReply(finalReply);
 
-    // 8. Registrar respuesta del asistente en el historial
+    // 9. Registrar respuesta del asistente en el historial
     await this.conversationRepo.addMessage(phoneNumber, {
       role: 'assistant',
       content: finalReply,
       timestamp: new Date()
     });
 
-    // 9. Enviar mensaje de respuesta al cliente vía WhatsApp
+    // 10. Enviar mensaje de respuesta al cliente vía WhatsApp
     await this.whatsAppService.sendMessage(phoneNumber, finalReply);
     this.observability.increment('repliesSent');
 
@@ -220,6 +268,10 @@ export class ProcessIncomingMessageUseCase {
       CANCELLED: 'cancelado'
     };
     return labels[status] || 'en revisión';
+  }
+
+  private isDeterministicFsmEnabled(): boolean {
+    return process.env.ENABLE_DETERMINISTIC_FSM?.trim().toLowerCase() === 'true';
   }
 
   private getConciseConfirmation(aiResponse: AIResponse): string | null {

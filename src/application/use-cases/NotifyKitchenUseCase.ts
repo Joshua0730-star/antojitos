@@ -4,6 +4,9 @@ import { Order } from '../../domain/entities/Order.js';
 import { Customer } from '../../domain/entities/Customer.js';
 import { OrderItem } from '../../domain/entities/OrderItem.js';
 import { OrderStatus } from '../../domain/value-objects/OrderStatus.js';
+import type { IOrderOutbox } from '../ports/IOrderOutbox.js';
+import type { PanelOrderPayload } from '../ports/IPanelOrderNotifier.js';
+import type { PanelOrderNotifier } from '../../infrastructure/http/PanelOrderNotifier.js';
 
 export interface NotifyKitchenInput {
   resumen_pedido_formatted: string;
@@ -44,7 +47,9 @@ export interface NotifyKitchenOutput {
 export class NotifyKitchenUseCase {
   constructor(
     private readonly whatsAppService: IWhatsAppService,
-    private readonly orderRepository: IOrderRepository
+    private readonly orderRepository: IOrderRepository,
+    private readonly orderOutbox?: IOrderOutbox<PanelOrderPayload>,
+    private readonly panelOrderNotifier?: PanelOrderNotifier
   ) {}
 
   public async execute(input: NotifyKitchenInput): Promise<NotifyKitchenOutput> {
@@ -115,6 +120,10 @@ export class NotifyKitchenUseCase {
 
       // 1. Guardar orden en base de datos
       await this.orderRepository.save(order);
+
+      if (this.orderOutbox && this.panelOrderNotifier) {
+        await this.orderOutbox.enqueue(order.id, this.panelOrderNotifier.toPanelPayload(order));
+      }
 
       // 2. Usar el formato oficial generado por el dominio si el texto del LLM difiere
       const finalFormattedMessage =

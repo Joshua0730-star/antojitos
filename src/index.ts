@@ -68,6 +68,14 @@ app.get('/menu.pdf', (_req, res) => {
 
 // Iniciar inyección de dependencias
 const container = createContainer();
+if (container.outboxDispatcher) {
+  const dispatchOutbox = () => container.outboxDispatcher?.dispatchOnce().catch(error => {
+    console.error('Error procesando outbox de pedidos:', error instanceof Error ? error.message : error);
+  });
+  void dispatchOutbox();
+  const outboxTimer = setInterval(dispatchOutbox, ENV.OUTBOX_DISPATCH_INTERVAL_MS);
+  outboxTimer.unref();
+}
 const webhookController = new WhatsAppWebhookController(
   container.processIncomingMessageUseCase,
   container.whatsAppService,

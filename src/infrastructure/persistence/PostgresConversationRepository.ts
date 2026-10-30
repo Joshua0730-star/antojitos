@@ -15,6 +15,7 @@ type ConversationRow = {
   human_takeover_started_at: Date | null;
   human_pause_until: Date | null;
   bot_paused_indefinitely: boolean;
+  fsm_session: ConversationState['fsmSession'] | null;
   updated_at: Date;
 };
 
@@ -29,6 +30,7 @@ function toState(row: ConversationRow): ConversationState {
     humanTakeoverStartedAt: row.human_takeover_started_at ? new Date(row.human_takeover_started_at) : undefined,
     humanPauseUntil: row.human_pause_until ? new Date(row.human_pause_until) : undefined,
     botPausedIndefinitely: row.bot_paused_indefinitely,
+    fsmSession: row.fsm_session ?? undefined,
     updatedAt: new Date(row.updated_at)
   };
 }
@@ -60,8 +62,8 @@ export class PostgresConversationRepository implements IConversationRepository {
     await this.db.query(
       `INSERT INTO bot_conversations (
         phone_number, messages, current_step, current_order_id, coexistence_status,
-        last_human_interaction, human_takeover_started_at, human_pause_until, bot_paused_indefinitely, updated_at
-      ) VALUES ($1, $2::jsonb, $3, $4, $5, $6, $7, $8, $9, $10)
+        last_human_interaction, human_takeover_started_at, human_pause_until, bot_paused_indefinitely, updated_at, fsm_session
+      ) VALUES ($1, $2::jsonb, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb)
       ON CONFLICT (phone_number) DO UPDATE SET
         messages = EXCLUDED.messages,
         current_step = EXCLUDED.current_step,
@@ -71,6 +73,7 @@ export class PostgresConversationRepository implements IConversationRepository {
         human_takeover_started_at = EXCLUDED.human_takeover_started_at,
         human_pause_until = EXCLUDED.human_pause_until,
         bot_paused_indefinitely = EXCLUDED.bot_paused_indefinitely,
+        fsm_session = EXCLUDED.fsm_session,
         updated_at = EXCLUDED.updated_at`,
       [
         state.phoneNumber,
@@ -82,7 +85,8 @@ export class PostgresConversationRepository implements IConversationRepository {
         state.humanTakeoverStartedAt ?? null,
         state.humanPauseUntil ?? null,
         state.botPausedIndefinitely ?? false,
-        state.updatedAt
+        state.updatedAt,
+        JSON.stringify(state.fsmSession ?? null)
       ]
     );
   }

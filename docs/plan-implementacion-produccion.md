@@ -27,6 +27,7 @@ El documento de arquitectura se trató como especificación de producto y no com
 - Contract tests de Meta: firma, verificación, payloads, multimedia y mensajes interactivos.
 - Prueba de carga con p50/p95/p99; objetivo p95 de texto simple menor a 1.5 s.
 - Prueba con dos réplicas y Redis real: idempotencia, debounce y handoff.
+- Ejecutar `REDIS_TEST_URL=rediss://... npm test -- tests/redis.integration.test.ts` en staging; sin esa variable la prueba queda omitida deliberadamente.
 - Prueba de caída/recuperación del panel y reentrega desde outbox.
 - Prueba manual de pedido completo, cambio de tamaño, FAQ durante el pedido, domicilio, Nequi/Daviplata/efectivo y transferencia humana.
 - Smoke test del contenedor y rollback antes de promover tráfico.

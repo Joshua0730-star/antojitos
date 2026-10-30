@@ -36,6 +36,11 @@ import { IntentRouterService } from '../../application/services/IntentRouterServ
 import { GuardrailsService } from '../../application/services/GuardrailsService.js';
 import { ObservabilityService } from '../../application/services/ObservabilityService.js';
 import { OperatingScheduleService } from '../../application/services/OperatingScheduleService.js';
+import { PostgresOrderOutbox } from '../persistence/PostgresOrderOutbox.js';
+import { OrderOutboxDispatcher } from '../../application/services/OrderOutboxDispatcher.js';
+import { PanelOrderNotifier } from '../http/PanelOrderNotifier.js';
+import type { IOrderOutbox } from '../../application/ports/IOrderOutbox.js';
+import type { PanelOrderPayload } from '../../application/ports/IPanelOrderNotifier.js';
 
 export interface AppContainer {
   orderRepository: IOrderRepository;
@@ -58,6 +63,8 @@ export interface AppContainer {
   toolExecutor: ToolExecutor;
   observability: ObservabilityService;
   operatingSchedule: OperatingScheduleService;
+  orderOutbox?: IOrderOutbox<PanelOrderPayload>;
+  outboxDispatcher?: OrderOutboxDispatcher<PanelOrderPayload>;
 }
 
 export function createContainer(overrides?: Partial<AppContainer>): AppContainer {
@@ -65,6 +72,13 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
   const postgresPool = ENV.DATABASE_PROVIDER === 'postgres' ? getPostgresPool() : undefined;
   const orderRepository = overrides?.orderRepository ||
     (postgresPool ? new PostgresOrderRepository(postgresPool) : new FileOrderRepository());
+  const panelOrderNotifier = postgresPool && ENV.PANEL_API_URL
+    ? new PanelOrderNotifier({ baseUrl: ENV.PANEL_API_URL, authorizationToken: ENV.PANEL_API_TOKEN || undefined })
+    : undefined;
+  const orderOutbox = postgresPool ? new PostgresOrderOutbox<PanelOrderPayload>(postgresPool) : undefined;
+  const outboxDispatcher = orderOutbox && panelOrderNotifier
+    ? new OrderOutboxDispatcher(orderOutbox, { publish: async (entry) => { await panelOrderNotifier.publishPayload(entry.payload); } })
+    : undefined;
   const receiptRepository = overrides?.receiptRepository ||
     (postgresPool ? new PostgresNequiReceiptRepository(postgresPool) : new FileNequiReceiptRepository());
   const conversationRepository = overrides?.conversationRepository ||
@@ -110,7 +124,7 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
     new ValidateNequiReceiptUseCase(visionService, receiptRepository);
   const notifyKitchenUseCase =
     overrides?.notifyKitchenUseCase ||
-    new NotifyKitchenUseCase(whatsAppService, orderRepository);
+    new NotifyKitchenUseCase(whatsAppService, orderRepository, orderOutbox, panelOrderNotifier);
 
   const toolExecutor =
     overrides?.toolExecutor ||
@@ -184,7 +198,7 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
     processIncomingMessageUseCase,
     toolExecutor,
     observability
-    ,operatingSchedule
+    ,operatingSchedule, orderOutbox, outboxDispatcher
   };
 }
 

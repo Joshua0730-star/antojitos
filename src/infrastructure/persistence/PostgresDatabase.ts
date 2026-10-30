@@ -51,6 +51,7 @@ export async function initializePostgresSchema(): Promise<void> {
     );
     ALTER TABLE bot_conversations ADD COLUMN IF NOT EXISTS human_pause_until TIMESTAMPTZ;
     ALTER TABLE bot_conversations ADD COLUMN IF NOT EXISTS human_takeover_started_at TIMESTAMPTZ;
+    ALTER TABLE bot_conversations ADD COLUMN IF NOT EXISTS fsm_session JSONB;
 
     -- Back-office catalog foundation. These tables are isolated from the
     -- conversational tables so catalog edits cannot mutate live chat state.
@@ -152,6 +153,28 @@ export async function initializePostgresSchema(): Promise<void> {
       ON admin_notifications (created_at DESC, id DESC);
     CREATE INDEX IF NOT EXISTS admin_notifications_unread_idx
       ON admin_notifications (read_at, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS order_outbox (
+      id TEXT PRIMARY KEY,
+      order_id TEXT NOT NULL UNIQUE,
+      payload JSONB NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'processing', 'sent', 'dead')),
+      attempts INTEGER NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+      next_attempt_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      last_error TEXT,
+      locked_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      sent_at TIMESTAMPTZ
+    );
+    CREATE INDEX IF NOT EXISTS order_outbox_pending_idx
+      ON order_outbox (next_attempt_at, created_at)
+      WHERE status = 'pending';
+    CREATE INDEX IF NOT EXISTS order_outbox_processing_lease_idx
+      ON order_outbox (locked_at)
+      WHERE status = 'processing';
+    CREATE INDEX IF NOT EXISTS order_outbox_status_created_idx
+      ON order_outbox (status, created_at);
   `);
 }
 

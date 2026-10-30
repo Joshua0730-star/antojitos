@@ -24,6 +24,7 @@ interface SQLiteConversationRow {
   humanTakeoverStartedAt: string | null;
   humanPauseUntil: string | null;
   botPausedIndefinitely: number | boolean;
+  fsmSession: string | null;
   updatedAt: string;
 }
 
@@ -37,6 +38,8 @@ export class SQLiteConversationRepository implements IConversationRepository {
       fs.mkdirSync(dir, { recursive: true });
     }
     this.db = new Database(fullPath);
+    // Mantiene compatibles las bases SQLite creadas por versiones anteriores.
+    try { this.db.exec('ALTER TABLE conversations ADD COLUMN fsmSession TEXT'); } catch { /* columna ya existe */ }
   }
 
   private serializeMessages(messages: ChatMessage[]): string {
@@ -79,6 +82,7 @@ export class SQLiteConversationRepository implements IConversationRepository {
         : undefined,
       humanPauseUntil: row.humanPauseUntil ? new Date(row.humanPauseUntil) : undefined,
       botPausedIndefinitely: Boolean(row.botPausedIndefinitely),
+      fsmSession: row.fsmSession ? JSON.parse(row.fsmSession) : undefined,
       updatedAt: new Date(row.updatedAt),
     };
   }
@@ -95,6 +99,7 @@ export class SQLiteConversationRepository implements IConversationRepository {
         humanTakeoverStartedAt,
         humanPauseUntil,
         botPausedIndefinitely,
+        fsmSession,
         updatedAt
       ) VALUES (
         @phoneNumber,
@@ -106,6 +111,7 @@ export class SQLiteConversationRepository implements IConversationRepository {
         @humanTakeoverStartedAt,
         @humanPauseUntil,
         @botPausedIndefinitely,
+        @fsmSession,
         @updatedAt
       )
       ON CONFLICT(phoneNumber) DO UPDATE SET
@@ -117,6 +123,7 @@ export class SQLiteConversationRepository implements IConversationRepository {
         humanTakeoverStartedAt = excluded.humanTakeoverStartedAt,
         humanPauseUntil = excluded.humanPauseUntil,
         botPausedIndefinitely = excluded.botPausedIndefinitely,
+        fsmSession = excluded.fsmSession,
         updatedAt = excluded.updatedAt;
     `;
 
@@ -134,6 +141,7 @@ export class SQLiteConversationRepository implements IConversationRepository {
         : null,
       humanPauseUntil: state.humanPauseUntil ? state.humanPauseUntil.toISOString() : null,
       botPausedIndefinitely: state.botPausedIndefinitely ? 1 : 0,
+      fsmSession: state.fsmSession ? JSON.stringify(state.fsmSession) : null,
       updatedAt: state.updatedAt.toISOString(),
     });
   }

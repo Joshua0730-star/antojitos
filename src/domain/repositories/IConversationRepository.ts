@@ -1,3 +1,5 @@
+import type { OrderSession } from '../fsm/orderFsm.js';
+
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -17,6 +19,7 @@ export interface ConversationState {
   humanTakeoverStartedAt?: Date;
   humanPauseUntil?: Date;
   botPausedIndefinitely?: boolean;
+  fsmSession?: OrderSession;
   updatedAt: Date;
 }
 
