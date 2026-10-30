@@ -72,7 +72,7 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
   const postgresPool = ENV.DATABASE_PROVIDER === 'postgres' ? getPostgresPool() : undefined;
   const orderRepository = overrides?.orderRepository ||
     (postgresPool ? new PostgresOrderRepository(postgresPool) : new FileOrderRepository());
-  const panelOrderNotifier = postgresPool && ENV.PANEL_API_URL
+  const panelOrderNotifier = postgresPool && ENV.ENABLE_ORDER_OUTBOX && ENV.PANEL_API_URL
     ? new PanelOrderNotifier({ baseUrl: ENV.PANEL_API_URL, authorizationToken: ENV.PANEL_API_TOKEN || undefined })
     : undefined;
   const orderOutbox = postgresPool ? new PostgresOrderOutbox<PanelOrderPayload>(postgresPool) : undefined;

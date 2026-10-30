@@ -22,7 +22,7 @@ export function assertProductionConfiguration(): void {
   if (!ENV.REDIS_URL && !ENV.REDIS_HOST) missing.push('REDIS_URL o REDIS_HOST');
   if (ENV.REDIS_URL && !ENV.REDIS_URL.startsWith('rediss://')) missing.push('REDIS_URL (debe usar rediss://)');
   if (!ENV.ADMIN_API_TOKEN) missing.push('ADMIN_API_TOKEN');
-  if (!ENV.PANEL_API_URL) missing.push('PANEL_API_URL');
+  if (ENV.ENABLE_ORDER_OUTBOX && !ENV.PANEL_API_URL) missing.push('PANEL_API_URL cuando ENABLE_ORDER_OUTBOX=true');
 
   if (missing.length > 0) {
     throw new Error(`Configuración de producción incompleta: ${missing.join(', ')}`);

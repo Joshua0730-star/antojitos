@@ -61,5 +61,6 @@ export const ENV = {
   ,MENU_PDF_URL: process.env.MENU_PDF_URL || 'https://antojitos-bot-tcb4sy2tpq-uc.a.run.app/menu.pdf'
   ,PANEL_API_URL: process.env.PANEL_API_URL || ''
   ,PANEL_API_TOKEN: process.env.PANEL_API_TOKEN || ''
+  ,ENABLE_ORDER_OUTBOX: process.env.ENABLE_ORDER_OUTBOX === 'true'
   ,OUTBOX_DISPATCH_INTERVAL_MS: parseInt(process.env.OUTBOX_DISPATCH_INTERVAL_MS || '5000', 10)
 };
