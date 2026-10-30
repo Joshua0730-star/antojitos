@@ -2,6 +2,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+export function normalizeAdminPhone(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length === 10 && digits.startsWith('3')) return `57${digits}`;
+  if (digits.startsWith('00')) return digits.slice(2);
+  return digits;
+}
+
 export const ENV = {
   PORT: parseInt(process.env.PORT || '3000', 10),
   NODE_ENV: process.env.NODE_ENV || 'development',
@@ -44,7 +51,7 @@ export const ENV = {
   // El token sigue siendo obligatorio: el teléfono funciona como segunda barrera.
   ADMIN_ALLOWED_PHONES: (process.env.ADMIN_ALLOWED_PHONES || '')
     .split(',')
-    .map(value => value.replace(/\D/g, ''))
+    .map(normalizeAdminPhone)
     .filter(value => value.length >= 7)
   ,BUSINESS_TIMEZONE: process.env.BUSINESS_TIMEZONE || 'America/Bogota'
   ,BUSINESS_OPEN_MINUTE: parseInt(process.env.BUSINESS_OPEN_MINUTE || '780', 10)

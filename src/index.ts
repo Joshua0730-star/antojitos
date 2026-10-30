@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ENV } from './infrastructure/config/env.js';
+import { ENV, normalizeAdminPhone } from './infrastructure/config/env.js';
 import { createContainer } from './infrastructure/di/container.js';
 import { WhatsAppWebhookController } from './presentation/controllers/WhatsAppWebhookController.js';
 import { closePostgresPool, initializePostgresSchema } from './infrastructure/persistence/PostgresDatabase.js';
@@ -87,7 +87,7 @@ const webhookController = new WhatsAppWebhookController(
 );
 
 function normalizePhone(value: string): string {
-  return value.replace(/\D/g, '');
+  return normalizeAdminPhone(value);
 }
 
 function isAdminPhoneAuthorized(req: Request): boolean {
