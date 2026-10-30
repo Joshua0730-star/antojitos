@@ -14,13 +14,6 @@ export class IdempotencyService {
     }
 
     const key = `idempotency:msg:${messageId}`;
-    const exists = await this.cacheService.get(key);
-
-    if (exists) {
-      return false; // Ya fue procesado
-    }
-
-    await this.cacheService.set(key, '1', ttlSeconds);
-    return true; // Es nuevo
+    return this.cacheService.setIfAbsent(key, '1', ttlSeconds);
   }
 }

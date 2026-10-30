@@ -13,6 +13,9 @@ import { adminPageHtml } from './presentation/admin/adminPage.js';
 import { getPostgresPool } from './infrastructure/persistence/PostgresDatabase.js';
 import { OpenAIAudioTranscriptionService } from './infrastructure/audio/OpenAIAudioTranscriptionService.js';
 import { registerOperationsRoutes } from './presentation/admin/operationsRoutes.js';
+import { assertProductionConfiguration } from './infrastructure/config/productionGuard.js';
+
+assertProductionConfiguration();
 
 if (ENV.DATABASE_PROVIDER === 'postgres') {
   await initializePostgresSchema();

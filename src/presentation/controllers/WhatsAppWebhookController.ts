@@ -9,6 +9,12 @@ import { OperatingScheduleService } from '../../application/services/OperatingSc
 import { IAudioTranscriptionService } from '../../application/ports/IAudioTranscriptionService.js';
 import crypto from 'node:crypto';
 
+type WebhookSecurityConfig = {
+  provider: typeof ENV.WHATSAPP_PROVIDER;
+  appSecret: string;
+  verifyToken: string;
+};
+
 export class WhatsAppWebhookController {
   constructor(
     private readonly processIncomingMessageUseCase: ProcessIncomingMessageUseCase,
@@ -17,20 +23,44 @@ export class WhatsAppWebhookController {
     private readonly debouncerService?: MessageDebouncerService,
     private readonly coexistenceService?: CoexistenceService,
     private readonly operatingSchedule?: OperatingScheduleService,
-    private readonly audioTranscriptionService?: IAudioTranscriptionService
+    private readonly audioTranscriptionService?: IAudioTranscriptionService,
+    private readonly securityConfig?: WebhookSecurityConfig
   ) {}
 
   private hasValidCloudSignature(req: Request): boolean {
-    if (ENV.WHATSAPP_PROVIDER !== 'cloud_api') return true;
-    const secret = ENV.WHATSAPP_APP_SECRET;
+    if ((this.securityConfig?.provider ?? ENV.WHATSAPP_PROVIDER) !== 'cloud_api') return true;
+    const secret = this.securityConfig?.appSecret ?? ENV.WHATSAPP_APP_SECRET;
     const signature = req.get('x-hub-signature-256') || '';
     const rawBody = (req as Request & { rawBody?: Buffer }).rawBody;
-    if (!secret || !rawBody || !signature.startsWith('sha256=')) return false;
+    if (!secret || !rawBody || !/^sha256=[0-9a-f]{64}$/i.test(signature)) return false;
     const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
-    const presented = signature.slice('sha256='.length);
-    return presented.length === expected.length && crypto.timingSafeEqual(
-      Buffer.from(presented, 'utf8'), Buffer.from(expected, 'utf8')
+    const presented = signature.slice('sha256='.length).toLowerCase();
+    return crypto.timingSafeEqual(
+      Buffer.from(presented, 'hex'), Buffer.from(expected, 'hex')
     );
+  }
+
+  private hasValidMetaPayload(body: unknown): boolean {
+    if (!body || typeof body !== 'object') return false;
+    const payload = body as { object?: unknown; entry?: unknown };
+    if (payload.object !== 'whatsapp_business_account' || !Array.isArray(payload.entry) || payload.entry.length === 0) {
+      return false;
+    }
+
+    return payload.entry.every((entry) => {
+      if (!entry || typeof entry !== 'object') return false;
+      const changes = (entry as { changes?: unknown }).changes;
+      if (!Array.isArray(changes) || changes.length === 0) return false;
+      return changes.every((change) => {
+        if (!change || typeof change !== 'object') return false;
+        const candidate = change as { field?: unknown; value?: unknown };
+        return typeof candidate.field === 'string'
+          && candidate.field.length > 0
+          && candidate.value !== null
+          && typeof candidate.value === 'object'
+          && !Array.isArray(candidate.value);
+      });
+    });
   }
 
   /**
@@ -40,8 +70,19 @@ export class WhatsAppWebhookController {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
+    const configuredToken = this.securityConfig?.verifyToken ?? ENV.WHATSAPP_VERIFY_TOKEN;
+    const presentedToken = typeof token === 'string' ? token : '';
+    const tokenMatches = Boolean(
+      configuredToken
+      && presentedToken
+      && configuredToken.length === presentedToken.length
+      && crypto.timingSafeEqual(
+        Buffer.from(configuredToken, 'utf8'),
+        Buffer.from(presentedToken, 'utf8')
+      )
+    );
 
-    if (mode === 'subscribe' && token === ENV.WHATSAPP_VERIFY_TOKEN) {
+    if (mode === 'subscribe' && tokenMatches && typeof challenge === 'string') {
       res.status(200).send(challenge);
       return;
     }
@@ -59,6 +100,11 @@ export class WhatsAppWebhookController {
         return;
       }
       const body = req.body;
+
+      if ((this.securityConfig?.provider ?? ENV.WHATSAPP_PROVIDER) === 'cloud_api' && !this.hasValidMetaPayload(body)) {
+        res.status(400).send('Payload de WhatsApp inválido');
+        return;
+      }
 
       // Telemetría segura: solo metadatos del evento, nunca texto, teléfonos,
       // imágenes, tokens ni payloads completos.

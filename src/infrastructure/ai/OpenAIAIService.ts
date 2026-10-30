@@ -4,6 +4,7 @@ import { ChatMessage } from '../../domain/repositories/IConversationRepository.j
 import { SYSTEM_PROMPT } from '../config/systemPrompt.js';
 import { AI_TOOLS_DEFINITIONS } from './ToolDefinitions.js';
 import { ToolExecutor } from './ToolExecutor.js';
+import { ENV } from '../config/env.js';
 
 export class OpenAIAIService implements IAIService {
   private openai: OpenAI;
@@ -11,7 +12,7 @@ export class OpenAIAIService implements IAIService {
   private toolExecutor: ToolExecutor;
 
   constructor(apiKey: string, model: string = 'gpt-4o', toolExecutor: ToolExecutor) {
-    this.openai = new OpenAI({ apiKey });
+    this.openai = new OpenAI({ apiKey, timeout: ENV.OPENAI_TIMEOUT_MS, maxRetries: 0 });
     this.model = model;
     this.toolExecutor = toolExecutor;
   }
@@ -66,7 +67,7 @@ export class OpenAIAIService implements IAIService {
     }
 
     let iterations = 0;
-    const maxIterations = 5;
+    const maxIterations = Math.max(1, ENV.OPENAI_MAX_ITERATIONS);
 
     while (iterations < maxIterations) {
       iterations++;

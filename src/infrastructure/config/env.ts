@@ -8,6 +8,8 @@ export const ENV = {
   AI_PROVIDER: (process.env.AI_PROVIDER || 'openai') as 'openai' | 'gemini' | 'mock',
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-4o',
+  OPENAI_TIMEOUT_MS: parseInt(process.env.OPENAI_TIMEOUT_MS || '1200', 10),
+  OPENAI_MAX_ITERATIONS: parseInt(process.env.OPENAI_MAX_ITERATIONS || '3', 10),
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
   GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
   WHATSAPP_PROVIDER: (process.env.WHATSAPP_PROVIDER || 'simulator') as 'simulator' | 'cloud_api' | 'evolution_api',
@@ -19,8 +21,10 @@ export const ENV = {
   EVOLUTION_HUMAN_SOURCES: (process.env.EVOLUTION_HUMAN_SOURCES || 'android,ios').split(',').map(value => value.trim().toLowerCase()).filter(Boolean),
   // No usar tokens de verificación conocidos por defecto: en producción debe
   // existir una credencial explícita configurada fuera del repositorio.
-  WHATSAPP_VERIFY_TOKEN: process.env.WHATSAPP_VERIFY_TOKEN || '',
-  WHATSAPP_APP_SECRET: process.env.WHATSAPP_APP_SECRET || '',
+  // Los secretos se normalizan para que espacios accidentales no conviertan
+  // una credencial vacía o ambigua en una credencial válida.
+  WHATSAPP_VERIFY_TOKEN: (process.env.WHATSAPP_VERIFY_TOKEN || '').trim(),
+  WHATSAPP_APP_SECRET: (process.env.WHATSAPP_APP_SECRET || '').trim(),
   KITCHEN_PHONE_NUMBER: process.env.KITCHEN_PHONE_NUMBER || '+573001234567',
   DATABASE_PROVIDER: (process.env.DATABASE_PROVIDER || (process.env.DATABASE_URL ? 'postgres' : 'local')) as 'local' | 'postgres',
   DATABASE_URL: process.env.DATABASE_URL || '',

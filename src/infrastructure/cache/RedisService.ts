@@ -3,6 +3,7 @@ import { ENV } from '../config/env.js';
 
 export interface ICacheService {
   set(key: string, value: string, ttlSeconds?: number): Promise<void>;
+  setIfAbsent(key: string, value: string, ttlSeconds?: number): Promise<boolean>;
   get(key: string): Promise<string | null>;
   del(key: string): Promise<void>;
   pushToList(key: string, item: string, ttlSeconds?: number): Promise<void>;
@@ -108,6 +109,26 @@ export class RedisService implements ICacheService {
 
     const expiresAt = ttlSeconds ? Date.now() + ttlSeconds * 1000 : undefined;
     this.memoryStore.set(key, { value, expiresAt });
+  }
+
+  public async setIfAbsent(key: string, value: string, ttlSeconds?: number): Promise<boolean> {
+    if (this.isAvailable() && this.client) {
+      try {
+        const result = ttlSeconds
+          ? await this.client.set(key, value, 'EX', ttlSeconds, 'NX')
+          : await this.client.set(key, value, 'NX');
+        return result === 'OK';
+      } catch {
+        // Fall through to the process-local atomic map for development/tests.
+      }
+    }
+
+    const now = Date.now();
+    const existing = this.memoryStore.get(key);
+    if (existing?.expiresAt && existing.expiresAt <= now) this.memoryStore.delete(key);
+    if (this.memoryStore.has(key)) return false;
+    this.memoryStore.set(key, { value, expiresAt: ttlSeconds ? now + ttlSeconds * 1000 : undefined });
+    return true;
   }
 
   public async get(key: string): Promise<string | null> {
