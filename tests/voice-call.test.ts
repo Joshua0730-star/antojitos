@@ -14,12 +14,12 @@ describe('ProcessIncomingMessageUseCase: Reglas de Comportamiento', () => {
 
     expect(result.isCallRejection).toBe(true);
     expect(result.replyMessage).toBe(
-      '¡Hola! Por llamadas no podemos tomar tu pedido de manera rápida. ¡Por aquí por chat te atendemos de inmediato! 🍓'
+      '¡Hola! 🍓 Notamos tu intento de llamada. Para brindarte una atención rápida y tomar tu pedido sin demoras, escríbenos por aquí por texto.'
     );
 
     const outbox = simulatorAdapter.getOutbox();
     expect(outbox.length).toBe(1);
-    expect(outbox[0].text).toContain('Por llamadas no podemos tomar tu pedido');
+    expect(outbox[0].text).toContain('Notamos tu intento de llamada');
   });
 
   it('permite consultar el catálogo sin errores', () => {
@@ -30,6 +30,6 @@ describe('ProcessIncomingMessageUseCase: Reglas de Comportamiento', () => {
     expect(catalog.productos.length).toBeGreaterThanOrEqual(3);
     const fresas = catalog.productos.find(p => p.id === 'fresas_crema_std');
     expect(fresas).toBeDefined();
-    expect(fresas?.opciones?.toppings?.max_seleccion).toBe(2);
+    expect(fresas?.opciones?.toppings?.max_seleccion).toBe(1);
   });
 });

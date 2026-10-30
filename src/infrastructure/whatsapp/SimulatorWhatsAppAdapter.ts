@@ -14,6 +14,11 @@ export class SimulatorWhatsAppAdapter implements IWhatsAppService {
     return true;
   }
 
+  public async sendDocument(to: string, documentUrl: string, filename: string, caption?: string): Promise<boolean> {
+    this.outbox.push({ to, imageUrl: documentUrl, text: `${filename}${caption ? ` — ${caption}` : ''}` });
+    return true;
+  }
+
   public async sendKitchenAlert(message: string): Promise<boolean> {
     this.kitchenAlerts.push(message);
     return true;

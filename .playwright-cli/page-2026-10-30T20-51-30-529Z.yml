@@ -1,0 +1,128 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - generic [ref=f2e5]:
+        - button "🥟 photo_camera" [ref=f2e6] [cursor=pointer]:
+          - generic [ref=f2e7]: 🥟
+          - generic [ref=f2e8]: photo_camera
+        - generic [ref=f2e10]:
+          - generic [ref=f2e11]:
+            - generic [ref=f2e12]: Antojitos
+            - generic [ref=f2e13]: Comida Colombiana
+          - paragraph [ref=f2e14]: Operaciones WhatsApp
+      - generic [ref=f2e15]:
+        - button "lock Acceso Privado" [ref=f2e16] [cursor=pointer]:
+          - generic [ref=f2e17]: lock
+          - generic [ref=f2e18]: Acceso Privado
+        - button "Notificaciones" [ref=f2e20] [cursor=pointer]:
+          - generic [ref=f2e21]: notifications
+  - main [ref=f2e22]:
+    - generic [ref=f2e23]:
+      - generic [ref=f2e24]:
+        - generic [ref=f2e25]:
+          - heading "Centro de control" [level=1] [ref=f2e26]
+          - generic [ref=f2e27]: Hoy
+        - paragraph [ref=f2e28]: Tu asistente de WhatsApp está atendiendo clientes y tomando pedidos en tiempo real.
+      - button "pause_circle Pausar Servicio" [disabled] [ref=f2e30]:
+        - generic [ref=f2e31]: pause_circle
+        - generic [ref=f2e32]: Pausar Servicio
+    - generic [ref=f2e33]:
+      - generic [ref=f2e34]:
+        - generic [ref=f2e35]: smart_toy
+        - generic [ref=f2e37]:
+          - generic [ref=f2e38]:
+            - generic [ref=f2e39]: Estado no consultado
+            - generic [ref=f2e40]: Sin consultar
+          - paragraph [ref=f2e42]: Recibiendo mensajes y registrando pedidos automáticamente en la línea oficial de WhatsApp.
+      - generic [ref=f2e43]:
+        - button "Bot activo" [ref=f2e44] [cursor=pointer]
+        - button "Fuera de horario" [ref=f2e46] [cursor=pointer]
+        - button "Pausado" [ref=f2e47] [cursor=pointer]
+    - generic [ref=f2e48]:
+      - generic [ref=f2e49]:
+        - generic [ref=f2e50]:
+          - generic [ref=f2e51]: Pedidos de hoy
+          - generic [ref=f2e52]: receipt_long
+        - generic [ref=f2e54]:
+          - generic [ref=f2e55]: —
+          - generic [ref=f2e56]:
+            - generic [ref=f2e57]: trending_up
+            - generic [ref=f2e58]: — en la última hora
+      - generic [ref=f2e59]:
+        - generic [ref=f2e60]:
+          - generic [ref=f2e61]: Pendientes de atención
+          - generic [ref=f2e62]: restaurant
+        - generic [ref=f2e64]:
+          - generic [ref=f2e65]: —
+          - generic [ref=f2e66]: Esperando confirmación de cocina
+      - generic [ref=f2e67]:
+        - generic [ref=f2e68]:
+          - generic [ref=f2e69]: Horario
+          - generic [ref=f2e70]: schedule
+        - generic [ref=f2e72]:
+          - generic [ref=f2e73]: —
+          - generic [ref=f2e74]: 11:30 AM - 10:00 PM
+      - generic [ref=f2e75]:
+        - generic [ref=f2e76]:
+          - generic [ref=f2e77]: Pausa humana
+          - generic [ref=f2e78]: person
+        - generic [ref=f2e80]:
+          - generic [ref=f2e81]: —
+          - generic [ref=f2e82]: 5 min por chat individual
+    - generic [ref=f2e83]:
+      - generic [ref=f2e84]:
+        - generic [ref=f2e85]:
+          - generic [ref=f2e86]:
+            - generic [ref=f2e87]: chat
+            - generic [ref=f2e88]:
+              - heading "Pedidos recibidos por WhatsApp" [level=2] [ref=f2e89]
+              - paragraph [ref=f2e90]: Actualizado al instante desde los chats de clientes
+          - generic [ref=f2e91]: 5 recientes
+        - generic [ref=f2e92]: Inicia sesión para cargar los pedidos.
+      - complementary [ref=f2e94]:
+        - generic [ref=f2e95]:
+          - generic [ref=f2e96]: tune
+          - heading "Entorno del bot" [level=2] [ref=f2e97]
+        - generic [ref=f2e98]:
+          - heading "Estado de operación" [level=3] [ref=f2e100]
+          - paragraph [ref=f2e102]: Determina si el motor conversacional interactúa de manera inmediata con los mensajes entrantes.
+          - generic [ref=f2e103]:
+            - button "Bot activo" [disabled] [ref=f2e104]
+            - button "pause Bot pausado" [disabled] [ref=f2e106]:
+              - generic [ref=f2e107]: pause
+              - text: Bot pausado
+        - generic [ref=f2e108]:
+          - generic [ref=f2e109]:
+            - heading "Horario de hoy" [level=3] [ref=f2e110]
+            - generic [ref=f2e111]: Sin consultar
+          - paragraph [ref=f2e112]: Controla si el bot recibe pedidos de inmediato o responde con mensaje de cerrado.
+          - generic [ref=f2e113]:
+            - button "door_open Abrir hoy" [disabled] [ref=f2e114]:
+              - generic [ref=f2e115]: door_open
+              - text: Abrir hoy
+            - button "door_front Cerrar hoy" [disabled] [ref=f2e116]:
+              - generic [ref=f2e117]: door_front
+              - text: Cerrar hoy
+        - generic [ref=f2e118]:
+          - heading "Intervención humana" [level=3] [ref=f2e120]
+          - paragraph [ref=f2e121]: La intervención humana pausa únicamente esa conversación para que puedas responder tú mismo sin que el bot interfiera.
+          - generic [ref=f2e122]:
+            - generic [ref=f2e123]:
+              - generic [ref=f2e124]: Número de WhatsApp del cliente
+              - generic [ref=f2e125]:
+                - generic: phone_iphone
+                - textbox "Número de WhatsApp del cliente" [disabled] [ref=f2e126]:
+                  - /placeholder: +57 300 000 0000
+            - generic [ref=f2e127]:
+              - button "timer Pausar 5 minutos" [ref=f2e128] [cursor=pointer]:
+                - generic [ref=f2e129]: timer
+                - text: Pausar 5 minutos
+              - button "play_arrow Reanudar bot" [ref=f2e130] [cursor=pointer]:
+                - generic [ref=f2e131]: play_arrow
+                - text: Reanudar bot
+  - contentinfo [ref=f2e132]:
+    - generic [ref=f2e133]:
+      - generic [ref=f2e134]: Antojitos • Panel de control para WhatsApp Business
+      - generic [ref=f2e135]:
+        - generic [ref=f2e136]: "Conexión de servidor: Sin consultar"
+        - generic [ref=f2e137]: "Última sincronización: —"

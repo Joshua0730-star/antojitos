@@ -1,0 +1,20 @@
+{
+  "usuario_antojos@lid": {
+    "phoneNumber": "usuario_antojos@lid",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hola",
+        "timestamp": "2026-10-30T22:33:16.858Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola! 🍓 Bienvenido a *Antojitos*, donde los antojos se hacen realidad.\n\n¿En qué te podemos consentir hoy?\n1️⃣ *Ver el Menú Completo*\n2️⃣ *Hacer un Pedido*\n3️⃣ *Consultar Estado de mi Pedido*\n\nEscríbenos lo que deseas ordenar o cuéntanos si tienes alguna duda.",
+        "timestamp": "2026-10-30T22:33:16.859Z"
+      }
+    ],
+    "currentStep": 1,
+    "coexistenceStatus": "BOT_ACTIVE",
+    "updatedAt": "2026-10-30T22:33:16.872Z"
+  }
+}

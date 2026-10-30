@@ -16,6 +16,11 @@ interface SerializedConversation {
   }>;
   currentStep: number;
   currentOrderId?: string;
+  coexistenceStatus?: 'BOT_ACTIVE' | 'HUMAN_TAKE-OVER' | 'COOLDOWN';
+  lastHumanInteraction?: string;
+  humanTakeoverStartedAt?: string;
+  humanPauseUntil?: string;
+  botPausedIndefinitely?: boolean;
   updatedAt: string;
 }
 
@@ -54,6 +59,7 @@ export class FileConversationRepository implements IConversationRepository {
         phoneNumber,
         messages: [],
         currentStep: 1,
+        coexistenceStatus: 'BOT_ACTIVE',
         updatedAt: new Date()
       };
     }
@@ -66,6 +72,11 @@ export class FileConversationRepository implements IConversationRepository {
       })),
       currentStep: existing.currentStep,
       currentOrderId: existing.currentOrderId,
+      coexistenceStatus: existing.coexistenceStatus || 'BOT_ACTIVE',
+      lastHumanInteraction: existing.lastHumanInteraction ? new Date(existing.lastHumanInteraction) : undefined,
+      humanTakeoverStartedAt: existing.humanTakeoverStartedAt ? new Date(existing.humanTakeoverStartedAt) : undefined,
+      humanPauseUntil: existing.humanPauseUntil ? new Date(existing.humanPauseUntil) : undefined,
+      botPausedIndefinitely: existing.botPausedIndefinitely,
       updatedAt: new Date(existing.updatedAt)
     };
   }
@@ -80,6 +91,11 @@ export class FileConversationRepository implements IConversationRepository {
       })),
       currentStep: state.currentStep,
       currentOrderId: state.currentOrderId,
+      coexistenceStatus: state.coexistenceStatus || 'BOT_ACTIVE',
+      lastHumanInteraction: state.lastHumanInteraction ? state.lastHumanInteraction.toISOString() : undefined,
+      humanTakeoverStartedAt: state.humanTakeoverStartedAt ? state.humanTakeoverStartedAt.toISOString() : undefined,
+      humanPauseUntil: state.humanPauseUntil ? state.humanPauseUntil.toISOString() : undefined,
+      botPausedIndefinitely: state.botPausedIndefinitely,
       updatedAt: state.updatedAt.toISOString()
     };
     this.writeAll(all);

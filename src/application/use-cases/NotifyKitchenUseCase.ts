@@ -51,6 +51,14 @@ export class NotifyKitchenUseCase {
     try {
       const { detalles_json, resumen_pedido_formatted } = input;
 
+      const phone = String(detalles_json.cliente.telefono || '').replace(/\D/g, '');
+      if (phone.length < 7) {
+        // La identidad telefónica solo se solicita al cerrar el pedido, no al
+        // iniciar la conversación. El modelo recibe este resultado y debe
+        // pedir el número antes de volver a intentar confirmar.
+        return { enviado: false, orden_id: 'PHONE_REQUIRED' };
+      }
+
       // Generar ID de orden aleatorio si no viene provisto (formato ANT-XXXX)
       const orderId =
         detalles_json.orden_id ||
@@ -59,7 +67,7 @@ export class NotifyKitchenUseCase {
       // Construir la entidad Customer
       const customer = new Customer({
         name: detalles_json.cliente.nombre,
-        phoneNumber: detalles_json.cliente.telefono,
+        phoneNumber: phone,
         deliveryType: detalles_json.cliente.tipo_entrega,
         address: detalles_json.cliente.direccion,
         neighborhoodOrMunicipality: detalles_json.cliente.barrio_municipio,
@@ -87,7 +95,11 @@ export class NotifyKitchenUseCase {
           })
       );
 
-      // Crear la entidad Order
+      // En este caso la herramienta se invoca únicamente después de aceptar
+      // y validar el pedido. El estado intermedio se conserva para que la
+      // consulta por teléfono nunca muestre una orden como preparada antes
+      // de enviarla realmente a cocina.
+      const paymentVerified = detalles_json.metodo_pago === 'NEQUI' && Boolean(detalles_json.referencia_nequi);
       const order = new Order({
         id: orderId,
         customer,
@@ -95,8 +107,10 @@ export class NotifyKitchenUseCase {
         paymentMethod: detalles_json.metodo_pago,
         cashBillAmount: detalles_json.paga_con_billete,
         nequiReference: detalles_json.referencia_nequi,
-        nequiVerified: detalles_json.metodo_pago === 'NEQUI',
-        status: OrderStatus.sentToKitchen()
+        // Confirmar el pedido y enviarlo a cocina no implica que el dinero ya
+        // esté confirmado. El pago se valida posteriormente desde el panel.
+        nequiVerified: paymentVerified,
+        status: paymentVerified ? OrderStatus.paymentVerified() : OrderStatus.pendingPayment()
       });
 
       // 1. Guardar orden en base de datos
@@ -110,6 +124,11 @@ export class NotifyKitchenUseCase {
 
       // 3. Despachar mensaje a cocina por WhatsApp
       const sent = await this.whatsAppService.sendKitchenAlert(finalFormattedMessage);
+
+      if (sent) {
+        order.markAsSentToKitchen();
+        await this.orderRepository.save(order);
+      }
 
       return {
         enviado: sent,

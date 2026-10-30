@@ -90,7 +90,9 @@ export class Order {
     let refLine = '';
 
     if (this.paymentMethod === 'NEQUI') {
-      paymentMethodLine = '💳 *Método de Pago:* Nequi (VERIFICADO ✅)';
+      paymentMethodLine = this.nequiVerified
+        ? '💳 *Método de Pago:* Nequi (VERIFICADO ✅)'
+        : '💳 *Método de Pago:* Nequi (PENDIENTE DE VERIFICACIÓN)';
       refLine = `\n🔍 *Ref. Nequi:* ${this.nequiReference || 'N/A'}`;
     } else {
       const change = this.calculateChange();

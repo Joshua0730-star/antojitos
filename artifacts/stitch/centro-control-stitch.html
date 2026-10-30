@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background text-on-surface antialiased" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Centro de control - Antojitos</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-high": "#dee9fc",
+            "on-error-container": "#93000a",
+            "tertiary-container": "#007650",
+            "on-tertiary": "#ffffff",
+            "inverse-primary": "#d2bbff",
+            "background": "#f8f9ff",
+            "on-secondary-fixed-variant": "#464555",
+            "primary-container": "#7c3aed",
+            "secondary-fixed": "#e4e0f5",
+            "on-error": "#ffffff",
+            "surface-container-highest": "#d9e3f6",
+            "on-surface-variant": "#4a4455",
+            "surface-dim": "#d0dbed",
+            "surface-variant": "#d9e3f6",
+            "on-secondary-fixed": "#1b1a29",
+            "tertiary": "#005b3d",
+            "tertiary-fixed": "#6ffbbe",
+            "outline": "#7b7487",
+            "inverse-on-surface": "#eaf1ff",
+            "on-primary-fixed-variant": "#5a00c6",
+            "surface": "#f8f9ff",
+            "on-tertiary-container": "#76ffc2",
+            "surface-bright": "#f8f9ff",
+            "on-primary-fixed": "#25005a",
+            "on-background": "#121c2a",
+            "on-surface": "#121c2a",
+            "inverse-surface": "#27313f",
+            "surface-container-lowest": "#ffffff",
+            "surface-tint": "#732ee4",
+            "secondary": "#5e5c6e",
+            "surface-container": "#e6eeff",
+            "on-tertiary-fixed": "#002113",
+            "on-primary": "#ffffff",
+            "on-secondary-container": "#646274",
+            "error": "#ba1a1a",
+            "primary-fixed-dim": "#d2bbff",
+            "error-container": "#ffdad6",
+            "secondary-container": "#e4e0f5",
+            "secondary-fixed-dim": "#c7c4d8",
+            "on-tertiary-fixed-variant": "#005236",
+            "primary": "#630ed4",
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#ccc3d8",
+            "tertiary-fixed-dim": "#4edea3",
+            "on-secondary": "#ffffff",
+            "on-primary-container": "#ede0ff",
+            "primary-fixed": "#eaddff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "gutter": "1.5rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "margin-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "gutter-mobile": "1rem"
+          },
+          fontFamily: {
+            "label-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "title-md": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "title-lg": ["Plus Jakarta Sans"]
+          },
+          fontSize: {
+            "label-lg": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+            "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+            "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }],
+            "title-md": ["16px", { lineHeight: "22px", fontWeight: "600" }],
+            "headline-xl-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }],
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.03em", fontWeight: "500" }],
+            "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600" }],
+            "headline-xl": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "title-lg": ["18px", { lineHeight: "24px", fontWeight: "600" }]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-background text-on-surface flex flex-col font-body-md selection:bg-secondary-container selection:text-primary">
+<!-- TOP APP BAR -->
+<header class="sticky top-0 z-40 w-full bg-surface-container-lowest">
+<div class="flex justify-between items-center px-6 py-3 w-full max-w-7xl mx-auto">
+<!-- Left Brand & Status text -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary font-bold text-lg">
+            🥟
+          </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-on-surface">Antojitos</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-low text-primary font-label-sm text-label-sm border border-outline-variant">
+                Comida Colombiana
+              </span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Operaciones WhatsApp</p>
+</div>
+</div>
+</div>
+<!-- Right Action Cluster -->
+<div class="flex items-center gap-3">
+<!-- Live Bot indicator badge in navbar -->
+<div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container animate-pulse"></span>
+<span class="font-label-md text-label-md text-tertiary">Estado Bot: Activo</span>
+</div>
+<!-- Acceso Privado Trigger Modal/Popover Toggle -->
+<button class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-outline-variant text-on-surface bg-surface-container-lowest hover:bg-surface-container-low active:scale-[0.98] transition-transform transition-colors font-label-md text-label-md shadow-sm" id="privateAccessBtn" onclick="togglePrivateAccessModal()">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Acceso Privado</span>
+</button>
+<button aria-label="Notificaciones" class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<!-- ACCESO PRIVADO MODAL / DIALOG (Accessible via Top Right Button) -->
+<div aria-labelledby="modalTitle" aria-modal="true" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/30 backdrop-blur-xs hidden" id="privateAccessModal" role="dialog">
+<div class="bg-surface-container-lowest w-full max-w-sm rounded-xl p-6 border border-outline-variant shadow-lg animate-in fade-in zoom-in-95 duration-150">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">lock</span>
+<h2 class="font-title-md text-title-md text-on-surface" id="modalTitle">Acceso privado</h2>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg" onclick="togglePrivateAccessModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+        Ingresa tus credenciales de administrador para gestionar llaves y configuración.
+      </p>
+<form class="space-y-4" onsubmit="handlePrivateAuth(event)">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1" for="authPhone">Teléfono autorizado</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">phone</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2 text-body-md font-body-md rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary-container focus:ring-2 focus:ring-secondary-container focus:outline-none" id="authPhone" required="" type="text" value="+57 312 456 7890"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1" for="authToken">Token administrativo</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">key</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2 text-body-md font-body-md rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary-container focus:ring-2 focus:ring-secondary-container focus:outline-none" id="authToken" placeholder="••••••••" required="" type="password" value="admin-secret-2024"/>
+</div>
+</div>
+<div class="pt-2 flex gap-2">
+<button class="w-1/2 py-2.5 rounded-lg border border-outline-variant text-on-surface font-label-lg text-label-lg hover:bg-surface-container-low transition-colors" onclick="togglePrivateAccessModal()" type="button">
+            Cancelar
+          </button>
+<button class="w-1/2 py-2.5 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-transform transition-opacity" type="submit">
+            Entrar
+          </button>
+</div>
+</form>
+</div>
+</div>
+<!-- MAIN VIEWPORT CONTAINER -->
+<main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+<!-- 1. PAGE TITLE & REASSURING STATEMENT -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-outline-variant/60">
+<div>
+<div class="flex items-center gap-3">
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Centro de control</h1>
+<span class="px-3 py-1 rounded-full bg-secondary-container text-primary font-label-md text-label-md">
+            Hoy, Jueves 24 de Octubre
+          </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 max-w-3xl">
+          Tu asistente de WhatsApp está atendiendo clientes y tomando pedidos en tiempo real.
+        </p>
+</div>
+<!-- Quick Service Action -->
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low active:scale-[0.99] transition-all" id="mainToggleBtn" onclick="toggleGlobalBot()">
+<span class="material-symbols-outlined text-[18px] text-tertiary">pause_circle</span>
+<span id="mainToggleText">Pausar Servicio</span>
+</button>
+</div>
+</div>
+<!-- 2. PROMINENT OVERALL STATUS BANNER / CARD -->
+<div class="bg-surface-container-lowest rounded-xl p-5 md:p-6 border border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-5">
+<div class="flex items-start md:items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[28px]">smart_toy</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<span class="font-title-lg text-title-lg text-on-surface font-bold">Bot activo</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary border border-outline-variant/80 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-ping"></span>
+              En línea
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+            Recibiendo mensajes y registrando pedidos automáticamente en la línea oficial de WhatsApp.
+          </p>
+</div>
+</div>
+<!-- Segmented Status Indicators -->
+<div class="flex items-center gap-1.5 p-1 rounded-xl bg-surface-container border border-outline-variant shrink-0 self-start md:self-auto">
+<button class="px-3.5 py-1.5 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-primary shadow-xs border border-outline-variant/60 flex items-center gap-1.5 transition-all">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+          Bot activo
+        </button>
+<button class="px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors">
+          Fuera de horario
+        </button>
+<button class="px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors">
+          Pausado
+        </button>
+</div>
+</div>
+<!-- 3. FOUR SUMMARY METRICS CARDS -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Pedidos de hoy</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-on-surface font-bold">28 pedidos</div>
+<div class="flex items-center gap-1 text-tertiary font-label-sm text-label-sm mt-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>+4 en la última hora</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Pendientes de atención</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">restaurant</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-on-surface font-bold">2 pedidos</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm mt-1">
+            Esperando confirmación de cocina
+          </div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Horario</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-tertiary font-bold">Abierto</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm mt-1">
+            11:30 AM - 10:00 PM
+          </div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Pausa humana</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-on-surface font-bold">0 activas</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm mt-1">
+            5 min por chat individual
+          </div>
+</div>
+</div>
+</div>
+<!-- 4. TWO-COLUMN MAIN CONTENT LAYOUT (60% / 40%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- LEFT COLUMN: PEDIDOS RECIBIDOS POR WHATSAPP (60% -> 7 Cols) -->
+<section class="lg:col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
+<div class="p-5 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[22px]">chat</span>
+<div>
+<h2 class="font-title-lg text-title-lg text-on-surface font-bold">Pedidos recibidos por WhatsApp</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Actualizado al instante desde los chats de clientes</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-md bg-secondary-container text-primary font-label-sm text-label-sm self-start sm:self-auto font-semibold">
+            5 recientes
+          </span>
+</div>
+<!-- Orders List / Table Container -->
+<div class="divide-y divide-outline-variant/70 overflow-x-auto">
+<!-- Order Item 1 -->
+<article class="p-5 hover:bg-surface-container-low transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1042</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 3 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Nequi
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$54.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Camila Restrepo</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 300 219 4481
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 2x Bandeja Paisa + 2x Jugo de Lulo
+            </div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1042" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container cursor-pointer font-medium">
+<option selected="">Nuevo</option>
+<option>En preparación</option>
+<option>Listo para entrega</option>
+<option>Entregado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 2 -->
+<article class="p-5 hover:bg-surface-container-low transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1041</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 12 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Daviplata
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$22.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Andrés Felipe Morales</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 311 872 9012
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 4x Empanadas de Carne + Arequipe
+            </div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1041" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container cursor-pointer font-medium">
+<option>Nuevo</option>
+<option selected="">En preparación</option>
+<option>Listo para entrega</option>
+<option>Entregado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 3 -->
+<article class="p-5 hover:bg-surface-container-low transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1040</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 26 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Contra entrega
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$38.500</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Valentina Gómez</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 320 541 3309
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 1x Ajiaco Santafereño + Brevas con Arequipe
+            </div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1040" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container cursor-pointer font-medium">
+<option>Nuevo</option>
+<option>En preparación</option>
+<option selected="">Listo para entrega</option>
+<option>Entregado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 4 -->
+<article class="p-5 hover:bg-surface-container-low transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1039</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 41 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Nequi
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$27.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Carlos Mario Zuluaga</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 314 620 9184
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 3x Arepas de Choclo con Queso
+            </div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1039" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container cursor-pointer font-medium">
+<option>Nuevo</option>
+<option>En preparación</option>
+<option>Listo para entrega</option>
+<option selected="">Entregado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 5 -->
+<article class="p-5 hover:bg-surface-container-low transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1038</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 54 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Daviplata
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$46.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Mariana Quintero</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 318 409 1120
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 2x Sancocho de Gallina + Porción de Aguacate
+            </div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1038" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container cursor-pointer font-medium">
+<option>Nuevo</option>
+<option>En preparación</option>
+<option>Listo para entrega</option>
+<option selected="">Entregado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- RIGHT COLUMN: ENTORNO DEL BOT (40% -> 5 Cols) -->
+<aside class="lg:col-span-5 space-y-6">
+<!-- SECTION TITLE HEADER -->
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">tune</span>
+<h2 class="font-title-lg text-title-lg text-on-surface font-bold">Entorno del bot</h2>
+</div>
+<!-- BOX 1: BOT OPERATIONAL STATE (PRIMARY TOGGLE) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant shadow-xs">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">Estado de operación</h3>
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container animate-pulse"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+            Determina si el motor conversacional interactúa de manera inmediata con los mensajes entrantes.
+          </p>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-secondary-container text-primary border border-outline-variant font-label-lg text-label-lg font-bold shadow-xs transition-all active:scale-[0.98]" id="btnStateActive" onclick="setBotStatus(true)">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container"></span>
+              Bot activo
+            </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg transition-all active:scale-[0.98]" id="btnStatePaused" onclick="setBotStatus(false)">
+<span class="material-symbols-outlined text-[18px]">pause</span>
+              Bot pausado
+            </button>
+</div>
+</div>
+<!-- BOX 2: HORARIO DE HOY -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant shadow-xs">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">Horario de hoy</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary text-label-sm font-label-sm font-semibold border border-outline-variant">
+              Abierto
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+            Controla si el bot recibe pedidos de inmediato o responde con mensaje de cerrado.
+          </p>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-transform" id="btnScheduleOpen" onclick="setSchedule(true)">
+<span class="material-symbols-outlined text-[18px]">door_open</span>
+              Abrir hoy
+            </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg active:scale-[0.98] transition-colors" id="btnScheduleClose" onclick="setSchedule(false)">
+<span class="material-symbols-outlined text-[18px]">door_front</span>
+              Cerrar hoy
+            </button>
+</div>
+</div>
+<!-- BOX 3: INTERVENCIÓN HUMANA -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant shadow-xs">
+<div class="flex items-center gap-2 mb-2">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">Intervención humana</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+            La intervención humana pausa únicamente esa conversación para que puedas responder tú mismo sin que el bot interfiera.
+          </p>
+<div class="space-y-3">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1" for="customerPhoneInput">
+                Número de WhatsApp del cliente
+              </label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">phone_iphone</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2.5 text-body-md font-body-md rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/50 focus:border-primary-container focus:ring-2 focus:ring-secondary-container focus:outline-none transition-all" id="customerPhoneInput" placeholder="+57 300 000 0000" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-1">
+<button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-secondary-container text-primary font-label-md text-label-md hover:bg-secondary-fixed active:scale-[0.98] transition-transform" onclick="pauseChatForMinutes(5)">
+<span class="material-symbols-outlined text-[16px]">timer</span>
+                Pausar 5 minutos
+              </button>
+<button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-md text-label-md active:scale-[0.98] transition-colors" onclick="resumeChat()">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                Reanudar bot
+              </button>
+</div>
+<div class="hidden p-3 rounded-lg bg-surface-container border border-outline-variant text-body-sm font-body-sm text-primary flex items-center gap-2" id="interventionAlert">
+<span class="material-symbols-outlined text-[18px]">info</span>
+<span id="interventionAlertText">Conversación pausada por 5 minutos.</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="mt-auto border-t border-outline-variant/60 py-4 px-6 bg-surface-container-lowest text-on-surface-variant text-label-sm font-label-sm">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+<div>Antojitos • Panel de control para WhatsApp Business</div>
+<div class="flex items-center gap-4">
+<span>Conexión de servidor: Estable</span>
+<span>Latencia del bot: 0.8s</span>
+</div>
+</div>
+</footer>
+<!-- SCRIPT FOR UI INTERACTIONS -->
+<script>
+    function togglePrivateAccessModal() {
+      const modal = document.getElementById('privateAccessModal');
+      modal.classList.toggle('hidden');
+    }
+
+    function handlePrivateAuth(e) {
+      e.preventDefault();
+      alert('Autenticación validada exitosamente para la consola de Antojitos.');
+      togglePrivateAccessModal();
+    }
+
+    let isGlobalActive = true;
+    function toggleGlobalBot() {
+      isGlobalActive = !isGlobalActive;
+      const textSpan = document.getElementById('mainToggleText');
+      if (isGlobalActive) {
+        textSpan.textContent = 'Pausar Servicio';
+        setBotStatus(true);
+      } else {
+        textSpan.textContent = 'Reanudar Servicio';
+        setBotStatus(false);
+      }
+    }
+
+    function setBotStatus(active) {
+      const btnActive = document.getElementById('btnStateActive');
+      const btnPaused = document.getElementById('btnStatePaused');
+
+      if (active) {
+        btnActive.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-secondary-container text-primary border border-outline-variant font-label-lg text-label-lg font-bold shadow-xs transition-all active:scale-[0.98]";
+        btnActive.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container"></span> Bot activo';
+        btnPaused.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg transition-all active:scale-[0.98]";
+      } else {
+        btnPaused.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-secondary-container text-primary border border-outline-variant font-label-lg text-label-lg font-bold shadow-xs transition-all active:scale-[0.98]";
+        btnActive.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg transition-all active:scale-[0.98]";
+        btnActive.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-outline"></span> Bot inactivo';
+      }
+    }
+
+    function setSchedule(isOpen) {
+      const openBtn = document.getElementById('btnScheduleOpen');
+      const closeBtn = document.getElementById('btnScheduleClose');
+
+      if (isOpen) {
+        openBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-transform";
+        closeBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg active:scale-[0.98] transition-colors";
+      } else {
+        closeBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-transform";
+        openBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg active:scale-[0.98] transition-colors";
+      }
+    }
+
+    function pauseChatForMinutes(mins) {
+      const input = document.getElementById('customerPhoneInput');
+      const alertBox = document.getElementById('interventionAlert');
+      const alertText = document.getElementById('interventionAlertText');
+
+      const phone = input.value.trim() || 'cliente seleccionado';
+      alertText.textContent = `Intervención humana activa por ${mins} min para ${phone}.`;
+      alertBox.classList.remove('hidden');
+    }
+
+    function resumeChat() {
+      const input = document.getElementById('customerPhoneInput');
+      const alertBox = document.getElementById('interventionAlert');
+      const alertText = document.getElementById('interventionAlertText');
+
+      const phone = input.value.trim() || 'cliente seleccionado';
+      alertText.textContent = `Bot reanudado para ${phone}.`;
+      alertBox.classList.remove('hidden');
+      setTimeout(() => {
+        alertBox.classList.add('hidden');
+      }, 3000);
+    }
+  </script>
+</body></html>

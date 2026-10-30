@@ -2,6 +2,21 @@ export const AI_TOOLS_DEFINITIONS = [
   {
     type: 'function' as const,
     function: {
+      name: 'calcular_domicilio',
+      description: 'Calcula la tarifa determinista de domicilio usando el barrio confirmado por el cliente. La hora la obtiene el sistema; la lluvia es opcional y solo debe venir de una fuente interna, nunca preguntarse al cliente.',
+      parameters: {
+        type: 'object',
+        properties: {
+          barrio: { type: 'string' },
+          llueve: { type: 'boolean', description: 'Dato interno opcional de clima; no pedirlo al cliente.' }
+        },
+        required: ['barrio']
+      }
+    }
+  },
+  {
+    type: 'function' as const,
+    function: {
       name: 'obtener_catalogo',
       description: 'Retorna la lista de productos disponibles, categorías, precios y opciones de personalización (tamaños, toppings, salsas, etc.) de Antojitos.',
       parameters: {
@@ -36,7 +51,7 @@ export const AI_TOOLS_DEFINITIONS = [
     type: 'function' as const,
     function: {
       name: 'notificar_cocina',
-      description: 'Envía el pedido formateado al canal de WhatsApp de cocina/preparación una vez que el pago ha sido validado (Nequi verificado o efectivo contra entrega confirmado). Retorna el ID de la orden generada.',
+      description: 'Confirma el pedido y lo envía inmediatamente al canal de WhatsApp de cocina/preparación. El pago puede quedar pendiente: efectivo se confirma al entregar y Nequi se valida posteriormente desde el panel. Retorna el ID de la orden generada.',
       parameters: {
         type: 'object',
         properties: {
@@ -52,13 +67,13 @@ export const AI_TOOLS_DEFINITIONS = [
                 type: 'object',
                 properties: {
                   nombre: { type: 'string' },
-                  telefono: { type: 'string' },
+                  telefono: { type: 'string', description: 'Teléfono del cliente. Se solicita únicamente al confirmar el pedido si no está disponible.' },
                   tipo_entrega: { type: 'string', enum: ['DOMICILIO', 'RECOGER_EN_LOCAL'] },
                   direccion: { type: 'string' },
                   barrio_municipio: { type: 'string' },
                   especificaciones: { type: 'string' }
                 },
-                required: ['nombre', 'telefono', 'tipo_entrega']
+                required: ['nombre', 'tipo_entrega']
               },
               items: {
                 type: 'array',

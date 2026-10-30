@@ -92,6 +92,7 @@ export class OpenAIAIService implements IAIService {
       // Si el LLM pide ejecutar herramientas (Tool Calls)
       if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
         for (const toolCall of responseMessage.tool_calls) {
+          if (toolCall.type !== 'function') continue;
           const functionName = toolCall.function.name;
           let parsedArgs = {};
           try {

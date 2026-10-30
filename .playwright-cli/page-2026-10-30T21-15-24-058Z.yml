@@ -1,0 +1,128 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - button "🥟 photo_camera" [ref=e6] [cursor=pointer]:
+          - generic [ref=e7]: 🥟
+          - generic [ref=e8]: photo_camera
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: Antojitos
+            - generic [ref=e13]: Comida Colombiana
+          - paragraph [ref=e14]: Operaciones WhatsApp
+      - generic [ref=e15]:
+        - button "lock Acceso Privado" [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: lock
+          - generic [ref=e18]: Acceso Privado
+        - button "Notificaciones" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: notifications
+  - main [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - heading "Centro de control" [level=1] [ref=e26]
+          - generic [ref=e27]: Hoy
+        - paragraph [ref=e28]: Tu asistente de WhatsApp está atendiendo clientes y tomando pedidos en tiempo real.
+      - button "pause_circle Pausar Servicio" [ref=e30] [cursor=pointer]:
+        - generic [ref=e31]: pause_circle
+        - generic [ref=e32]: Pausar Servicio
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]: smart_toy
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: Estado no consultado
+            - generic [ref=e40]: Sin consultar
+          - paragraph [ref=e42]: Recibiendo mensajes y registrando pedidos automáticamente en la línea oficial de WhatsApp.
+      - generic [ref=e43]:
+        - button "Bot activo" [ref=e44] [cursor=pointer]
+        - button "Fuera de horario" [ref=e46] [cursor=pointer]
+        - button "Pausado" [ref=e47] [cursor=pointer]
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - generic [ref=e51]: Pedidos de hoy
+          - generic [ref=e52]: receipt_long
+        - generic [ref=e54]:
+          - generic [ref=e55]: —
+          - generic [ref=e56]:
+            - generic [ref=e57]: trending_up
+            - generic [ref=e58]: — en la última hora
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - generic [ref=e61]: Pendientes de atención
+          - generic [ref=e62]: restaurant
+        - generic [ref=e64]:
+          - generic [ref=e65]: —
+          - generic [ref=e66]: Esperando confirmación de cocina
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - generic [ref=e69]: Horario
+          - generic [ref=e70]: schedule
+        - generic [ref=e72]:
+          - generic [ref=e73]: —
+          - generic [ref=e74]: 11:30 AM - 10:00 PM
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]: Pausa humana
+          - generic [ref=e78]: person
+        - generic [ref=e80]:
+          - generic [ref=e81]: —
+          - generic [ref=e82]: 5 min por chat individual
+    - generic [ref=e83]:
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]: chat
+            - generic [ref=e88]:
+              - heading "Pedidos recibidos por WhatsApp" [level=2] [ref=e89]
+              - paragraph [ref=e90]: Actualizado al instante desde los chats de clientes
+          - generic [ref=e91]: 5 recientes
+        - generic [ref=e92]: Inicia sesión para cargar los pedidos.
+      - complementary [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]: tune
+          - heading "Entorno del bot" [level=2] [ref=e97]
+        - generic [ref=e98]:
+          - heading "Estado de operación" [level=3] [ref=e100]
+          - paragraph [ref=e102]: Determina si el motor conversacional interactúa de manera inmediata con los mensajes entrantes.
+          - generic [ref=e103]:
+            - button "Bot activo" [ref=e104] [cursor=pointer]
+            - button "pause Bot pausado" [ref=e106] [cursor=pointer]:
+              - generic [ref=e107]: pause
+              - text: Bot pausado
+        - generic [ref=e108]:
+          - generic [ref=e109]:
+            - heading "Horario de hoy" [level=3] [ref=e110]
+            - generic [ref=e111]: Sin consultar
+          - paragraph [ref=e112]: Controla si el bot recibe pedidos de inmediato o responde con mensaje de cerrado.
+          - generic [ref=e113]:
+            - button "door_open Abrir hoy" [ref=e114] [cursor=pointer]:
+              - generic [ref=e115]: door_open
+              - text: Abrir hoy
+            - button "door_front Cerrar hoy" [ref=e116] [cursor=pointer]:
+              - generic [ref=e117]: door_front
+              - text: Cerrar hoy
+        - generic [ref=e118]:
+          - heading "Intervención humana" [level=3] [ref=e120]
+          - paragraph [ref=e121]: La intervención humana pausa únicamente esa conversación para que puedas responder tú mismo sin que el bot interfiera.
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - generic [ref=e124]: Número de WhatsApp del cliente
+              - generic [ref=e125]:
+                - generic: phone_iphone
+                - textbox "Número de WhatsApp del cliente" [ref=e126]:
+                  - /placeholder: +57 300 000 0000
+            - generic [ref=e127]:
+              - button "timer Pausar 5 minutos" [ref=e128] [cursor=pointer]:
+                - generic [ref=e129]: timer
+                - text: Pausar 5 minutos
+              - button "play_arrow Reanudar bot" [ref=e130] [cursor=pointer]:
+                - generic [ref=e131]: play_arrow
+                - text: Reanudar bot
+  - contentinfo [ref=e132]:
+    - generic [ref=e133]:
+      - generic [ref=e134]: Antojitos • Panel de control para WhatsApp Business
+      - generic [ref=e135]:
+        - generic [ref=e136]: "Conexión de servidor: Sin consultar"
+        - generic [ref=e137]: "Última sincronización: —"

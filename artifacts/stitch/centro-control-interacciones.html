@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background text-on-surface antialiased" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Centro de control - Antojitos</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-high": "#dee9fc",
+            "on-error-container": "#93000a",
+            "tertiary-container": "#007650",
+            "on-tertiary": "#ffffff",
+            "inverse-primary": "#d2bbff",
+            "background": "#f8f9ff",
+            "on-secondary-fixed-variant": "#464555",
+            "primary-container": "#7c3aed",
+            "secondary-fixed": "#e4e0f5",
+            "on-error": "#ffffff",
+            "surface-container-highest": "#d9e3f6",
+            "on-surface-variant": "#4a4455",
+            "surface-dim": "#d0dbed",
+            "surface-variant": "#d9e3f6",
+            "on-secondary-fixed": "#1b1a29",
+            "tertiary": "#005b3d",
+            "tertiary-fixed": "#6ffbbe",
+            "outline": "#7b7487",
+            "inverse-on-surface": "#eaf1ff",
+            "on-primary-fixed-variant": "#5a00c6",
+            "surface": "#f8f9ff",
+            "on-tertiary-container": "#76ffc2",
+            "surface-bright": "#f8f9ff",
+            "on-primary-fixed": "#25005a",
+            "on-background": "#121c2a",
+            "on-surface": "#121c2a",
+            "inverse-surface": "#27313f",
+            "surface-container-lowest": "#ffffff",
+            "surface-tint": "#732ee4",
+            "secondary": "#5e5c6e",
+            "surface-container": "#e6eeff",
+            "on-tertiary-fixed": "#002113",
+            "on-primary": "#ffffff",
+            "on-secondary-container": "#646274",
+            "error": "#ba1a1a",
+            "primary-fixed-dim": "#d2bbff",
+            "error-container": "#ffdad6",
+            "secondary-container": "#e4e0f5",
+            "secondary-fixed-dim": "#c7c4d8",
+            "on-tertiary-fixed-variant": "#005236",
+            "primary": "#630ed4",
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#ccc3d8",
+            "tertiary-fixed-dim": "#4edea3",
+            "on-secondary": "#ffffff",
+            "on-primary-container": "#ede0ff",
+            "primary-fixed": "#eaddff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "gutter": "1.5rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "margin-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "gutter-mobile": "1rem"
+          },
+          fontFamily: {
+            "label-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "title-md": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "title-lg": ["Plus Jakarta Sans"]
+          },
+          fontSize: {
+            "label-lg": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+            "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+            "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }],
+            "title-md": ["16px", { lineHeight: "22px", fontWeight: "600" }],
+            "headline-xl-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }],
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.03em", fontWeight: "500" }],
+            "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600" }],
+            "headline-xl": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "title-lg": ["18px", { lineHeight: "24px", fontWeight: "600" }]
+          }
+        },
+      },
+    }
+</script>
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-spin-custom {
+    animation: spin 0.75s linear infinite;
+  }
+</style>
+</head>
+<body class="min-h-screen bg-background text-on-surface flex flex-col font-body-md selection:bg-secondary-container selection:text-primary pb-20">
+<!-- FLOATING TOAST NOTIFICATION CONTAINER -->
+<div class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full" id="toastContainer"></div>
+<!-- TOP APP BAR -->
+<header class="sticky top-0 z-40 w-full bg-surface-container-lowest border-b border-outline-variant/40 shadow-xs">
+<div class="flex justify-between items-center px-6 py-3 w-full max-w-7xl mx-auto">
+<!-- Left Brand & Status text -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary font-bold text-lg select-none">
+            🥟
+          </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-on-surface">Antojitos</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-low text-primary font-label-sm text-label-sm border border-outline-variant">
+                Comida Colombiana
+              </span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Operaciones WhatsApp</p>
+</div>
+</div>
+</div>
+<!-- Right Action Cluster -->
+<div class="flex items-center gap-3">
+<!-- Live Bot indicator badge in navbar -->
+<div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant transition-colors" id="headerBotBadge">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container animate-pulse" id="headerBotDot"></span>
+<span class="font-label-md text-label-md text-tertiary" id="headerBotText">Estado Bot: Activo</span>
+</div>
+<!-- Acceso Privado Trigger Modal/Popover Toggle -->
+<button class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-outline-variant text-on-surface bg-surface-container-lowest hover:bg-surface-container-low active:scale-[0.98] transition-all font-label-md text-label-md shadow-xs" id="privateAccessBtn" onclick="togglePrivateAccessModal()">
+<span class="material-symbols-outlined text-[18px]" id="privateAccessIcon">lock</span>
+<span id="privateAccessLabel">Acceso Privado</span>
+<span class="hidden w-2 h-2 rounded-full bg-tertiary" id="authBadgeIndicator"></span>
+</button>
+<button aria-label="Notificaciones" class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors relative" onclick="showToast('No hay alertas críticas en cola.', 'info')">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary-container"></span>
+</button>
+</div>
+</div>
+</header>
+<!-- ACCESO PRIVADO MODAL / DIALOG -->
+<div aria-labelledby="modalTitle" aria-modal="true" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-xs hidden transition-opacity duration-200" id="privateAccessModal" role="dialog">
+<div class="bg-surface-container-lowest w-full max-w-sm rounded-xl p-6 border border-outline-variant shadow-xl transition-all">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface font-bold" id="modalTitle">Acceso privado</h2>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg transition-colors" onclick="togglePrivateAccessModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+        Ingresa tus credenciales de administrador para desbloquear controles protegidos y gestionar operaciones.
+      </p>
+<!-- Credential Hint Box (collapsible or subtle) -->
+<div class="mb-4 p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/70 text-label-sm font-label-sm text-on-surface-variant">
+<div class="flex items-center justify-between text-primary font-semibold mb-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[15px]">info</span> Credenciales de prueba</span>
+<button class="text-[11px] underline hover:text-primary-container" onclick="fillTestCredentials()" type="button">Usar válidas</button>
+</div>
+<div>Teléfono: <span class="font-mono text-on-surface font-semibold">+57 312 456 7890</span></div>
+<div>Token: <span class="font-mono text-on-surface font-semibold">admin-secret-2024</span></div>
+</div>
+<!-- Inline Auth Error Banner -->
+<div class="hidden mb-4 p-3 rounded-lg bg-error-container/60 border border-error/30 text-body-sm font-body-sm text-error flex items-start gap-2" id="authErrorAlert">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error</span>
+<span>Teléfono no autorizado o token inválido.</span>
+</div>
+<form class="space-y-4" onsubmit="handlePrivateAuth(event)">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1" for="authPhone">Teléfono de administrador</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">phone</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2 text-body-md font-body-md rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary-container focus:ring-2 focus:ring-secondary-container focus:outline-none transition-colors" id="authPhone" required="" type="text" value="+57 312 456 7890"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1" for="authToken">Token administrativo</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">key</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2 text-body-md font-body-md rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary-container focus:ring-2 focus:ring-secondary-container focus:outline-none transition-colors" id="authToken" placeholder="••••••••" required="" type="password" value="admin-secret-2024"/>
+</div>
+</div>
+<div class="pt-2 flex gap-2">
+<button class="w-1/2 py-2.5 rounded-lg border border-outline-variant text-on-surface font-label-lg text-label-lg hover:bg-surface-container-low transition-colors" onclick="togglePrivateAccessModal()" type="button">
+            Cancelar
+          </button>
+<button class="w-1/2 py-2.5 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2" id="authSubmitBtn" type="submit">
+<span class="hidden material-symbols-outlined text-[18px] animate-spin-custom" id="authSubmitSpinner">progress_activity</span>
+<span id="authSubmitText">Entrar</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+<!-- PAUSE SERVICE CONFIRMATION MODAL -->
+<div aria-labelledby="pauseModalTitle" aria-modal="true" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-xs hidden transition-opacity duration-200" id="pauseConfirmModal" role="dialog">
+<div class="bg-surface-container-lowest w-full max-w-md rounded-xl p-6 border border-outline-variant shadow-xl">
+<div class="flex items-start gap-3.5 mb-3">
+<div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">pause_circle</span>
+</div>
+<div>
+<h2 class="font-title-lg text-title-lg text-on-surface font-bold" id="pauseModalTitle">¿Pausar el servicio?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+      Esta acción pausará las respuestas automáticas a nivel global en la línea de WhatsApp. Los clientes recibirán un aviso o no tendrán respuesta automática hasta reanudar.
+    </p>
+</div>
+</div>
+<div class="mt-6 flex justify-end gap-2.5">
+<button class="px-4 py-2.5 rounded-lg border border-outline-variant text-on-surface font-label-lg text-label-lg hover:bg-surface-container-low transition-colors" onclick="closePauseConfirmModal()" type="button">
+    Cancelar
+  </button>
+<button class="px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-label-lg text-label-lg shadow-xs active:scale-[0.98] transition-all flex items-center gap-2" id="confirmPauseBtn" onclick="confirmPauseService()" type="button">
+<span class="hidden material-symbols-outlined text-[18px] animate-spin-custom" id="confirmPauseSpinner">progress_activity</span>
+<span>Pausar servicio</span>
+</button>
+</div>
+</div>
+</div>
+<!-- MAIN VIEWPORT CONTAINER -->
+<main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+<!-- 1. PAGE TITLE & REASSURING STATEMENT -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-outline-variant/60">
+<div>
+<div class="flex items-center gap-3">
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Centro de control</h1>
+<span class="px-3 py-1 rounded-full bg-secondary-container text-primary font-label-md text-label-md">
+            Hoy, Jueves 24 de Octubre
+          </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 max-w-3xl" id="pageSubtitle">
+          Tu asistente de WhatsApp está atendiendo clientes y tomando pedidos en tiempo real.
+        </p>
+</div>
+<!-- Quick Service Action -->
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low active:scale-[0.99] transition-all shadow-xs" id="mainToggleBtn" onclick="handleMainToggleClick()">
+<span class="material-symbols-outlined text-[18px] text-tertiary" id="mainToggleIcon">pause_circle</span>
+<span id="mainToggleText">Pausar Servicio</span>
+</button>
+</div>
+</div>
+<!-- 2. PROMINENT OVERALL STATUS BANNER / CARD -->
+<div class="bg-surface-container-lowest rounded-xl p-5 md:p-6 border border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-5 transition-colors" id="overallStatusBanner">
+<div class="flex items-start md:items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary shrink-0 transition-colors" id="statusBannerIconBox">
+<span class="material-symbols-outlined text-[28px]" id="statusBannerIcon">smart_toy</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<span class="font-title-lg text-title-lg text-on-surface font-bold" id="statusBannerTitle">Bot activo</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary border border-outline-variant/80 font-label-sm text-label-sm" id="statusBannerBadge">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-ping" id="statusBannerPing"></span>
+<span id="statusBannerBadgeText">En línea</span>
+</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5" id="statusBannerDesc">
+            Recibiendo mensajes y registrando pedidos automáticamente en la línea oficial de WhatsApp.
+          </p>
+</div>
+</div>
+<!-- Segmented Status Indicators -->
+<div class="flex items-center gap-1.5 p-1 rounded-xl bg-surface-container border border-outline-variant shrink-0 self-start md:self-auto">
+<button class="px-3.5 py-1.5 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-primary shadow-xs border border-outline-variant/60 flex items-center gap-1.5 transition-all" id="pillBotActive" onclick="setBotStatusDirect(true)">
+<span class="w-2 h-2 rounded-full bg-tertiary-container" id="pillActiveDot"></span>
+          Bot activo
+        </button>
+<button class="px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors" id="pillOutOfHours" onclick="simulateOutOfHours()">
+          Fuera de horario
+        </button>
+<button class="px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors" id="pillPaused" onclick="triggerPauseModalFromPill()">
+          Pausado
+        </button>
+</div>
+</div>
+<!-- 3. FOUR SUMMARY METRICS CARDS -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Pedidos de hoy</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-on-surface font-bold">28 pedidos</div>
+<div class="flex items-center gap-1 text-tertiary font-label-sm text-label-sm mt-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>+4 en la última hora</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Pendientes de atención</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">restaurant</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-on-surface font-bold">2 pedidos</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm mt-1">
+            Esperando confirmación de cocina
+          </div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Horario</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-tertiary font-bold" id="metricScheduleStatus">Abierto</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm mt-1" id="metricScheduleHours">
+            11:30 AM - 10:00 PM
+          </div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Pausa humana</span>
+<div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="metricHumanCount">0 activas</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm mt-1" id="metricHumanDesc">
+            5 min por chat individual
+          </div>
+</div>
+</div>
+</div>
+<!-- 4. TWO-COLUMN MAIN CONTENT LAYOUT (60% / 40%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- LEFT COLUMN: PEDIDOS RECIBIDOS POR WHATSAPP (60% -> 7 Cols) -->
+<section class="lg:col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
+<div class="p-5 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[22px]">chat</span>
+<div>
+<h2 class="font-title-lg text-title-lg text-on-surface font-bold">Pedidos recibidos por WhatsApp</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Actualizado al instante desde los chats de clientes</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container text-primary font-label-sm text-label-sm font-semibold">
+    5 recientes
+  </span>
+</div>
+</div>
+<!-- Orders List / Table Container -->
+<div class="divide-y divide-outline-variant/70 overflow-x-auto">
+<!-- Order Item 1 -->
+<article class="p-5 hover:bg-surface-container-low/70 transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1042</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 3 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Nequi
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$54.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Camila Restrepo</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 300 219 4481
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 2x Bandeja Paisa + 2x Jugo de Lulo
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1042" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-secondary-container cursor-pointer font-medium hover:border-primary transition-colors" onchange="handleOrderStatusChange('#ANT-1042', this.value)">
+<option selected="" value="Nuevo">Nuevo</option>
+<option value="En preparación">En preparación</option>
+<option value="Listo para entrega">Listo para entrega</option>
+<option value="Entregado">Entregado</option>
+<option value="Cancelado">Cancelado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 2 -->
+<article class="p-5 hover:bg-surface-container-low/70 transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1041</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 12 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Daviplata
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$22.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Andrés Felipe Morales</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 311 872 9012
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 4x Empanadas de Carne + Arequipe
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1041" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-secondary-container cursor-pointer font-medium hover:border-primary transition-colors" onchange="handleOrderStatusChange('#ANT-1041', this.value)">
+<option value="Nuevo">Nuevo</option>
+<option selected="" value="En preparación">En preparación</option>
+<option value="Listo para entrega">Listo para entrega</option>
+<option value="Entregado">Entregado</option>
+<option value="Cancelado">Cancelado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 3 -->
+<article class="p-5 hover:bg-surface-container-low/70 transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1040</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 26 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Contra entrega
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$38.500</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Valentina Gómez</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 320 541 3309
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 1x Ajiaco Santafereño + Brevas con Arequipe
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1040" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-secondary-container cursor-pointer font-medium hover:border-primary transition-colors" onchange="handleOrderStatusChange('#ANT-1040', this.value)">
+<option value="Nuevo">Nuevo</option>
+<option value="En preparación">En preparación</option>
+<option selected="" value="Listo para entrega">Listo para entrega</option>
+<option value="Entregado">Entregado</option>
+<option value="Cancelado">Cancelado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 4 -->
+<article class="p-5 hover:bg-surface-container-low/70 transition-colors duration-150">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-primary">#ANT-1039</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 41 min</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-primary border border-outline-variant">
+                  Nequi
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface">$27.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Carlos Mario Zuluaga</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 314 620 9184
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant/60 font-body-sm text-body-sm text-on-surface mb-3.5">
+<span class="font-semibold text-primary">Items:</span> 3x Arepas de Choclo con Queso
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido:</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1039" class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container cursor-pointer font-medium hover:border-primary transition-colors" onchange="handleOrderStatusChange('#ANT-1039', this.value)">
+<option value="Nuevo">Nuevo</option>
+<option value="En preparación">En preparación</option>
+<option value="Listo para entrega">Listo para entrega</option>
+<option selected="" value="Entregado">Entregado</option>
+<option value="Cancelado">Cancelado</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</article>
+<!-- Order Item 5 (Disabled row example) -->
+<article class="p-5 bg-surface-container-low/40 opacity-75">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg font-bold text-on-surface-variant">#ANT-1038</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 54 min</span>
+<span class="px-2 py-0.5 rounded text-[11px] bg-outline-variant/40 text-on-surface-variant font-medium">Archivado</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full text-label-sm font-label-sm bg-surface-container text-on-surface-variant border border-outline-variant">
+                  Daviplata
+                </span>
+<span class="font-title-md text-title-md font-bold text-on-surface-variant">$46.000</span>
+</div>
+</div>
+<div class="mb-3">
+<div class="font-title-md text-title-md font-semibold text-on-surface">Mariana Quintero</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">call</span>
+                +57 318 409 1120
+              </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container/60 border border-outline-variant/60 font-body-sm text-body-sm text-on-surface-variant mb-3.5">
+<span class="font-semibold text-on-surface">Items:</span> 2x Sancocho de Gallina + Porción de Aguacate
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado del pedido (bloqueado):</span>
+<div class="relative">
+<select aria-label="Estado del pedido ANT-1038 cerrado" class="appearance-none bg-surface-container border border-outline-variant/60 rounded-lg pl-3 pr-8 py-1.5 text-label-sm font-label-sm text-on-surface-variant cursor-not-allowed font-medium" disabled="">
+<option selected="">Entregado (Finalizado)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-[16px] text-on-surface-variant">lock</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- RIGHT COLUMN: ENTORNO DEL BOT (40% -> 5 Cols) -->
+<aside class="lg:col-span-5 space-y-6">
+<!-- SECTION TITLE HEADER -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">tune</span>
+<h2 class="font-title-lg text-title-lg text-on-surface font-bold">Entorno del bot</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1" id="protectedLockStatus">
+<span class="material-symbols-outlined text-[14px]">lock_open</span> Modo operativo
+</span>
+</div>
+<!-- BOX 1: BOT OPERATIONAL STATE (PRIMARY TOGGLE) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant shadow-xs">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">Estado de operación</h3>
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container animate-pulse" id="operationalDotIndicator"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+            Determina si el motor conversacional interactúa de manera inmediata con los mensajes entrantes.
+          </p>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-secondary-container text-primary border border-outline-variant font-label-lg text-label-lg font-bold shadow-xs transition-all active:scale-[0.98]" id="btnStateActive" onclick="setBotStatusDirect(true)">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container"></span>
+              Bot activo
+            </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg transition-all active:scale-[0.98]" id="btnStatePaused" onclick="triggerPauseModalFromPill()">
+<span class="material-symbols-outlined text-[18px]">pause</span>
+              Bot pausado
+            </button>
+</div>
+</div>
+<!-- BOX 2: HORARIO DE HOY -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant shadow-xs">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">Horario de hoy</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary text-label-sm font-label-sm font-semibold border border-outline-variant" id="badgeScheduleBox">
+              Abierto
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+            Controla si el bot recibe pedidos de inmediato o responde con mensaje de cerrado.
+          </p>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-all shadow-xs" id="btnScheduleOpen" onclick="updateSchedule(true)">
+<span class="hidden material-symbols-outlined text-[18px] animate-spin-custom" id="spinnerScheduleOpen">progress_activity</span>
+<span class="material-symbols-outlined text-[18px]" id="iconScheduleOpen">door_open</span>
+<span id="textScheduleOpen">Abrir hoy</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg active:scale-[0.98] transition-colors" id="btnScheduleClose" onclick="updateSchedule(false)">
+<span class="hidden material-symbols-outlined text-[18px] animate-spin-custom" id="spinnerScheduleClose">progress_activity</span>
+<span class="material-symbols-outlined text-[18px]" id="iconScheduleClose">door_front</span>
+<span id="textScheduleClose">Cerrar hoy</span>
+</button>
+</div>
+</div>
+<!-- BOX 3: INTERVENCIÓN HUMANA -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant shadow-xs">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">Intervención humana</h3>
+<span class="text-[11px] font-label-sm text-primary bg-secondary-container px-2 py-0.5 rounded-full border border-outline-variant" id="durationConfirmedBadge">Duración: 5 min</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+            La intervención humana pausa únicamente esa conversación para que puedas responder tú mismo sin que el bot interfiera.
+          </p>
+<!-- Duration Selector Pills -->
+<div class="mb-4">
+<div class="flex items-center justify-between mb-1.5">
+<label class="block font-label-md text-label-md text-on-surface">Pausa por conversación</label>
+<span class="text-[11px] text-on-surface-variant">Configurable</span>
+</div>
+<div class="flex flex-wrap gap-1.5" id="pauseDurationContainer">
+<button class="pause-pill-btn px-2.5 py-1 rounded-lg text-label-sm font-label-sm border border-outline-variant bg-secondary-container text-primary font-semibold transition-all" data-mins="5" onclick="selectPauseDuration(5)" type="button">5 min</button>
+<button class="pause-pill-btn px-2.5 py-1 rounded-lg text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container-low transition-all" data-mins="10" onclick="selectPauseDuration(10)" type="button">10 min</button>
+<button class="pause-pill-btn px-2.5 py-1 rounded-lg text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container-low transition-all" data-mins="15" onclick="selectPauseDuration(15)" type="button">15 min</button>
+<button class="pause-pill-btn px-2.5 py-1 rounded-lg text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container-low transition-all" data-mins="30" onclick="selectPauseDuration(30)" type="button">30 min</button>
+<button class="pause-pill-btn px-2.5 py-1 rounded-lg text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container-low transition-all flex items-center gap-1" data-mins="custom" onclick="toggleCustomDurationInput()" type="button">
+<span>Personalizado</span>
+<span class="material-symbols-outlined text-[13px]">edit</span>
+</button>
+</div>
+<!-- Custom Duration Inline Input -->
+<div class="hidden mt-2 flex items-center gap-2" id="customDurationBox">
+<input class="w-24 px-2.5 py-1 text-label-sm rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:outline-none focus:border-primary-container" id="customMinutesInput" max="180" min="1" placeholder="Minutos" type="number" value="20"/>
+<span class="text-body-sm text-on-surface-variant">minutos</span>
+<button class="px-2.5 py-1 bg-primary-container text-on-primary text-label-sm rounded-lg hover:opacity-90" onclick="applyCustomDuration()" type="button">Fijar</button>
+</div>
+</div>
+<div class="space-y-3">
+<!-- Phone Input Container -->
+<div id="humanInputContainer">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1" for="customerPhoneInput">
+                Número de WhatsApp del cliente
+              </label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">phone_iphone</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2.5 text-body-md font-body-md rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/50 focus:border-primary-container focus:ring-2 focus:ring-secondary-container focus:outline-none transition-all" id="customerPhoneInput" placeholder="+57 300 000 0000" type="text" value="+57 300 219 4481"/>
+</div>
+<p class="hidden text-error font-body-sm text-body-sm mt-1.5 flex items-center gap-1" id="phoneValidationAlert">
+<span class="material-symbols-outlined text-[15px]">error</span>
+<span>Ingresa un número de WhatsApp válido (ej. +57 300 123 4567).</span>
+</p>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-secondary-container text-primary font-label-md text-label-md hover:bg-secondary-fixed active:scale-[0.98] transition-all" id="btnPauseChat" onclick="executePauseChat()">
+<span class="hidden material-symbols-outlined text-[16px] animate-spin-custom" id="spinnerPauseChat">progress_activity</span>
+<span class="material-symbols-outlined text-[16px]" id="iconPauseChat">timer</span>
+<span id="textPauseChatBtn">Pausar 5 minutos</span>
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-md text-label-md active:scale-[0.98] transition-colors" onclick="quickClearInterventionInput()">
+<span class="material-symbols-outlined text-[16px]">close</span>
+                Limpiar campo
+</button>
+</div>
+</div>
+<!-- Active Intervention Live Panel (replaces input or shown prominently) -->
+<div class="hidden p-4 rounded-xl bg-surface-container border border-tertiary-container/40 space-y-3 animate-in fade-in duration-200" id="activeInterventionPanel">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-tertiary-container text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">support_agent</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg font-bold text-on-surface" id="activeInterventionPhoneDisplay">+57 300 219 4481</div>
+<div class="font-label-sm text-label-sm text-tertiary font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>
+          Intervención humana activa
+        </div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono font-bold text-headline-md text-primary" id="interventionCountdownTicker">04:59</div>
+<div class="text-[11px] text-on-surface-variant font-medium">restantes</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant border-t border-outline-variant/40 pt-2">
+    El bot ignora las respuestas para este número. Puedes contestarle directamente en tu WhatsApp Web/Móvil.
+  </p>
+<button class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-xs" onclick="resumeChatDirectly()" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+<span>Reanudar bot para este cliente</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="mt-auto border-t border-outline-variant/60 py-4 px-6 bg-surface-container-lowest text-on-surface-variant text-label-sm font-label-sm">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+<div>Antojitos • Panel de control para WhatsApp Business</div>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-tertiary"></span> Conexión de servidor: Estable</span>
+<span>Latencia del bot: 0.8s</span>
+</div>
+</div>
+</footer>
+<!-- 6. INTERACTIVE STATE GUIDE / INSPECTOR TOOLBAR (Floating Bottom Ribbon) -->
+<aside class="fixed bottom-0 inset-x-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md border-t border-outline-variant shadow-lg py-2.5 px-4 transition-transform duration-200" id="inspectorBar">
+<div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+<div class="flex items-center gap-2">
+<span class="flex h-2 w-2 rounded-full bg-primary-container"></span>
+<span class="font-label-md text-label-md font-bold text-on-surface">Modo Interacción &amp; Estados:</span>
+<span class="text-on-surface-variant text-body-sm hidden md:inline">Prueba directa de todas las situaciones operativas</span>
+</div>
+<div class="flex flex-wrap items-center gap-1.5 text-label-sm font-label-sm">
+<button class="px-2.5 py-1 rounded bg-secondary-container text-primary font-medium hover:bg-secondary-fixed transition-colors" onclick="simulateValidAccess()" type="button">
+        Simular Acceso Válido
+      </button>
+<button class="px-2.5 py-1 rounded bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors" onclick="simulateInvalidAccess()" type="button">
+        Simular Error Acceso
+      </button>
+<button class="px-2.5 py-1 rounded bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition-colors" onclick="openPauseConfirmModal()" type="button">
+        Ver Diálogo Pausar
+      </button>
+<button class="px-2.5 py-1 rounded bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors" onclick="toggleSimulatedPausedState()" type="button">
+        Simular Bot Pausado
+      </button>
+<button class="px-2.5 py-1 rounded bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors" onclick="simulateActiveIntervention()" type="button">
+        Simular Intervención
+      </button>
+<button class="px-2.5 py-1 rounded bg-red-100 text-red-900 border border-red-300 hover:bg-red-200 transition-colors" onclick="showToast('Error de conexión simulado con la API de WhatsApp', 'error')" type="button">
+        Toast Error
+      </button>
+<button class="px-2.5 py-1 rounded bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 transition-colors" onclick="showToast('✓ Notificación de prueba ejecutada', 'success')" type="button">
+        Toast Éxito
+      </button>
+</div>
+</div>
+</aside>
+<!-- SCRIPT FOR UI INTERACTIONS -->
+<script>
+    // Global State
+    let isBotActive = true;
+    let isScheduleOpen = true;
+    let selectedPauseMinutes = 5;
+    let interventionTimer = null;
+    let interventionSecondsLeft = 0;
+    let isAuthorized = false;
+
+    // Toast Notification System
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const isSuccess = type === 'success';
+      const isError = type === 'error';
+      const isWarning = type === 'warning';
+      
+      let bgClasses = 'bg-surface-container-lowest text-on-surface border-tertiary-container shadow-lg';
+      let icon = 'check_circle';
+      let iconColor = 'text-tertiary';
+      
+      if (isError) {
+        bgClasses = 'bg-surface-container-lowest text-on-surface border-error shadow-lg';
+        icon = 'error';
+        iconColor = 'text-error';
+      } else if (isWarning) {
+        bgClasses = 'bg-surface-container-lowest text-on-surface border-amber-500 shadow-lg';
+        icon = 'warning';
+        iconColor = 'text-amber-600';
+      } else if (type === 'info') {
+        bgClasses = 'bg-surface-container-lowest text-on-surface border-outline-variant shadow-lg';
+        icon = 'info';
+        iconColor = 'text-primary';
+      }
+
+      toast.className = `pointer-events-auto flex items-start gap-2.5 p-3.5 rounded-xl border ${bgClasses} transition-all duration-300 transform translate-y-2 opacity-0 text-body-sm font-body-sm`;
+      toast.innerHTML = `
+        <span class="material-symbols-outlined text-[20px] ${iconColor} shrink-0 mt-0.5">${icon}</span>
+        <div class="flex-1">${message}</div>
+        <button onclick="this.parentElement.remove()" class="text-on-surface-variant hover:text-on-surface p-0.5 rounded">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      `;
+
+      container.appendChild(toast);
+      // Trigger animation
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      // Auto remove
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-1');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // 1. Private Access Modal Logic
+    function togglePrivateAccessModal() {
+      const modal = document.getElementById('privateAccessModal');
+      const isHidden = modal.classList.contains('hidden');
+      if (isHidden) {
+        modal.classList.remove('hidden');
+        document.getElementById('authErrorAlert').classList.add('hidden');
+        document.getElementById('authPhone').classList.remove('border-error');
+        document.getElementById('authToken').classList.remove('border-error');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function fillTestCredentials() {
+      document.getElementById('authPhone').value = '+57 312 456 7890';
+      document.getElementById('authToken').value = 'admin-secret-2024';
+      document.getElementById('authErrorAlert').classList.add('hidden');
+    }
+
+    function handlePrivateAuth(e) {
+      if (e) e.preventDefault();
+      const phoneInput = document.getElementById('authPhone');
+      const tokenInput = document.getElementById('authToken');
+      const submitBtn = document.getElementById('authSubmitBtn');
+      const spinner = document.getElementById('authSubmitSpinner');
+      const btnText = document.getElementById('authSubmitText');
+      const errorAlert = document.getElementById('authErrorAlert');
+
+      const phoneVal = phoneInput.value.trim();
+      const tokenVal = tokenInput.value.trim();
+
+      // Show loading spinner
+      submitBtn.disabled = true;
+      spinner.classList.remove('hidden');
+      btnText.textContent = 'Verificando...';
+      errorAlert.classList.add('hidden');
+      phoneInput.classList.remove('border-error');
+      tokenInput.classList.remove('border-error');
+
+      setTimeout(() => {
+        // Validation check
+        const isValid = (phoneVal === '+57 312 456 7890' || phoneVal === '3124567890') && (tokenVal === 'admin-secret-2024');
+
+        submitBtn.disabled = false;
+        spinner.classList.add('hidden');
+        btnText.textContent = 'Entrar';
+
+        if (isValid) {
+          isAuthorized = true;
+          togglePrivateAccessModal();
+          
+          // Update header button to reflect authorized session
+          const accessBtn = document.getElementById('privateAccessBtn');
+          const accessLabel = document.getElementById('privateAccessLabel');
+          const authIndicator = document.getElementById('authBadgeIndicator');
+          accessLabel.textContent = 'Admin Activo';
+          authIndicator.classList.remove('hidden');
+          accessBtn.classList.add('border-primary/50', 'bg-surface-container-low');
+
+          document.getElementById('protectedLockStatus').innerHTML = '<span class="material-symbols-outlined text-[14px] text-tertiary">verified_user</span> Admin desbloqueado';
+
+          showToast('✓ Acceso concedido — Controles administrativos habilitados', 'success');
+        } else {
+          // Failure: keep open, inline red error without giving away which one failed
+          errorAlert.classList.remove('hidden');
+          phoneInput.classList.add('border-error');
+          tokenInput.classList.add('border-error');
+        }
+      }, 600);
+    }
+
+    // 2. Pause Service Confirmation Modal
+    function handleMainToggleClick() {
+      if (isBotActive) {
+        openPauseConfirmModal();
+      } else {
+        // Resume directly
+        setBotStatusDirect(true);
+        showToast('✓ Servicio de bot reanudado globalmente', 'success');
+      }
+    }
+
+    function triggerPauseModalFromPill() {
+      if (isBotActive) {
+        openPauseConfirmModal();
+      }
+    }
+
+    function openPauseConfirmModal() {
+      document.getElementById('pauseConfirmModal').classList.remove('hidden');
+    }
+
+    function closePauseConfirmModal() {
+      document.getElementById('pauseConfirmModal').classList.add('hidden');
+    }
+
+    function confirmPauseService() {
+      const btn = document.getElementById('confirmPauseBtn');
+      const spinner = document.getElementById('confirmPauseSpinner');
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+
+      setTimeout(() => {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+        closePauseConfirmModal();
+        setBotStatusDirect(false);
+        showToast('Servicio de bot pausado globalmente', 'warning');
+      }, 500);
+    }
+
+    function setBotStatusDirect(active) {
+      isBotActive = active;
+      
+      const mainToggleText = document.getElementById('mainToggleText');
+      const mainToggleIcon = document.getElementById('mainToggleIcon');
+      const mainToggleBtn = document.getElementById('mainToggleBtn');
+
+      const headerBadge = document.getElementById('headerBotBadge');
+      const headerDot = document.getElementById('headerBotDot');
+      const headerText = document.getElementById('headerBotText');
+
+      const banner = document.getElementById('overallStatusBanner');
+      const bannerTitle = document.getElementById('statusBannerTitle');
+      const bannerDesc = document.getElementById('statusBannerDesc');
+      const bannerBadge = document.getElementById('statusBannerBadge');
+      const bannerBadgeText = document.getElementById('statusBannerBadgeText');
+      const bannerPing = document.getElementById('statusBannerPing');
+      const bannerIconBox = document.getElementById('statusBannerIconBox');
+      const bannerIcon = document.getElementById('statusBannerIcon');
+
+      const pillActive = document.getElementById('pillBotActive');
+      const pillPaused = document.getElementById('pillPaused');
+      const pillOutOfHours = document.getElementById('pillOutOfHours');
+
+      const btnActive = document.getElementById('btnStateActive');
+      const btnPaused = document.getElementById('btnStatePaused');
+      const opDot = document.getElementById('operationalDotIndicator');
+
+      if (active) {
+        // Active visual state
+        mainToggleText.textContent = 'Pausar Servicio';
+        mainToggleIcon.textContent = 'pause_circle';
+        mainToggleIcon.className = 'material-symbols-outlined text-[18px] text-tertiary';
+        mainToggleBtn.className = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low active:scale-[0.99] transition-all shadow-xs';
+
+        headerDot.className = 'w-2.5 h-2.5 rounded-full bg-tertiary-container animate-pulse';
+        headerText.className = 'font-label-md text-label-md text-tertiary';
+        headerText.textContent = 'Estado Bot: Activo';
+
+        banner.className = 'bg-surface-container-lowest rounded-xl p-5 md:p-6 border border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-5 transition-colors';
+        bannerIconBox.className = 'w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary shrink-0 transition-colors';
+        bannerIcon.textContent = 'smart_toy';
+        bannerTitle.textContent = 'Bot activo';
+        bannerDesc.textContent = 'Recibiendo mensajes y registrando pedidos automáticamente en la línea oficial de WhatsApp.';
+        bannerBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary border border-outline-variant/80 font-label-sm text-label-sm';
+        bannerPing.className = 'w-2 h-2 rounded-full bg-tertiary-container animate-ping';
+        bannerBadgeText.textContent = 'En línea';
+
+        // Pills
+        pillActive.className = 'px-3.5 py-1.5 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-primary shadow-xs border border-outline-variant/60 flex items-center gap-1.5 transition-all';
+        pillPaused.className = 'px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors';
+        pillOutOfHours.className = 'px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors';
+
+        // Box 1 Buttons
+        btnActive.className = 'flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-secondary-container text-primary border border-outline-variant font-label-lg text-label-lg font-bold shadow-xs transition-all active:scale-[0.98]';
+        btnActive.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container"></span> Bot activo';
+        btnPaused.className = 'flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg transition-all active:scale-[0.98]';
+        opDot.className = 'w-2.5 h-2.5 rounded-full bg-tertiary-container animate-pulse';
+      } else {
+        // Paused visual state (Amber styling)
+        mainToggleText.textContent = 'Reanudar servicio';
+        mainToggleIcon.textContent = 'play_arrow';
+        mainToggleIcon.className = 'material-symbols-outlined text-[18px] text-on-primary';
+        mainToggleBtn.className = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-lg hover:opacity-95 active:scale-[0.99] transition-all shadow-md';
+
+        headerDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+        headerText.className = 'font-label-md text-label-md text-amber-700';
+        headerText.textContent = 'Estado Bot: En Pausa';
+
+        banner.className = 'bg-amber-50/60 rounded-xl p-5 md:p-6 border border-amber-200 flex flex-col md:flex-row md:items-center justify-between gap-5 transition-colors';
+        bannerIconBox.className = 'w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 transition-colors';
+        bannerIcon.textContent = 'pause_circle';
+        bannerTitle.textContent = 'Bot pausado';
+        bannerDesc.textContent = 'Las respuestas automáticas están temporalmente detenidas. Los clientes en WhatsApp no recibirán confirmaciones hasta reanudar.';
+        bannerBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-label-sm text-label-sm';
+        bannerPing.className = 'w-2 h-2 rounded-full bg-amber-500';
+        bannerBadgeText.textContent = 'En pausa';
+
+        // Pills
+        pillActive.className = 'px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors';
+        pillPaused.className = 'px-3.5 py-1.5 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-amber-700 shadow-xs border border-amber-300 flex items-center gap-1.5 transition-all';
+        pillOutOfHours.className = 'px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors';
+
+        // Box 1 Buttons
+        btnPaused.className = 'flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 font-label-lg text-label-lg font-bold shadow-xs transition-all active:scale-[0.98]';
+        btnActive.className = 'flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg transition-all active:scale-[0.98]';
+        btnActive.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-outline"></span> Bot inactivo';
+        opDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+      }
+    }
+
+    function simulateOutOfHours() {
+      updateSchedule(false);
+      showToast('Modo fuera de horario activado', 'info');
+    }
+
+    // 3. Horario de Hoy Logic
+    function updateSchedule(open) {
+      const openBtn = document.getElementById('btnScheduleOpen');
+      const closeBtn = document.getElementById('btnScheduleClose');
+      const spinnerOpen = document.getElementById('spinnerScheduleOpen');
+      const iconOpen = document.getElementById('iconScheduleOpen');
+      const spinnerClose = document.getElementById('spinnerScheduleClose');
+      const iconClose = document.getElementById('iconScheduleClose');
+      const badge = document.getElementById('badgeScheduleBox');
+      const metricStatus = document.getElementById('metricScheduleStatus');
+      const metricHours = document.getElementById('metricScheduleHours');
+
+      // Show brief button loading
+      if (open) {
+        spinnerOpen.classList.remove('hidden');
+        iconOpen.classList.add('hidden');
+        openBtn.disabled = true;
+      } else {
+        spinnerClose.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+        closeBtn.disabled = true;
+      }
+
+      setTimeout(() => {
+        isScheduleOpen = open;
+        spinnerOpen.classList.add('hidden');
+        iconOpen.classList.remove('hidden');
+        spinnerClose.classList.add('hidden');
+        iconClose.classList.remove('hidden');
+        openBtn.disabled = false;
+        closeBtn.disabled = false;
+
+        if (open) {
+          openBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-all shadow-xs";
+          closeBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg active:scale-[0.98] transition-colors";
+          badge.className = "px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary text-label-sm font-label-sm font-semibold border border-outline-variant";
+          badge.textContent = "Abierto";
+          metricStatus.className = "font-headline-lg text-headline-lg text-tertiary font-bold";
+          metricStatus.textContent = "Abierto";
+          metricHours.textContent = "11:30 AM - 10:00 PM";
+          showToast('✓ Horario actualizado: Abierto (recibiendo pedidos)', 'success');
+        } else {
+          closeBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg hover:opacity-95 active:scale-[0.98] transition-all shadow-xs";
+          openBtn.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low font-label-lg text-label-lg active:scale-[0.98] transition-colors";
+          badge.className = "px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-label-sm font-label-sm font-semibold border border-outline-variant";
+          badge.textContent = "Cerrado temporalmente";
+          metricStatus.className = "font-headline-lg text-headline-lg text-on-surface-variant font-bold";
+          metricStatus.textContent = "Cerrado";
+          metricHours.textContent = "Respuestas automáticas de fuera de turno";
+          showToast('✓ Horario actualizado: Cerrado temporalmente', 'info');
+        }
+      }, 450);
+    }
+
+    // 4. Human Intervention & Pause Duration Selector
+    function selectPauseDuration(mins) {
+      selectedPauseMinutes = mins;
+      document.getElementById('customDurationBox').classList.add('hidden');
+      
+      // Update buttons style
+      const pills = document.querySelectorAll('.pause-pill-btn');
+      pills.forEach(p => {
+        if (p.getAttribute('data-mins') == mins) {
+          p.className = 'pause-pill-btn px-2.5 py-1 rounded-lg text-label-sm font-label-sm border border-outline-variant bg-secondary-container text-primary font-semibold transition-all';
+        } else {
+          p.className = 'pause-pill-btn px-2.5 py-1 rounded-lg text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container-low transition-all';
+        }
+      });
+
+      document.getElementById('textPauseChatBtn').textContent = `Pausar ${mins} minutos`;
+      const badge = document.getElementById('durationConfirmedBadge');
+      badge.textContent = `Duración: ${mins} min`;
+      badge.classList.remove('bg-secondary-container', 'text-primary');
+      badge.classList.add('bg-tertiary-container', 'text-white');
+      setTimeout(() => {
+        badge.classList.add('bg-secondary-container', 'text-primary');
+        badge.classList.remove('bg-tertiary-container', 'text-white');
+      }, 600);
+    }
+
+    function toggleCustomDurationInput() {
+      const box = document.getElementById('customDurationBox');
+      box.classList.toggle('hidden');
+      if (!box.classList.contains('hidden')) {
+        document.getElementById('customMinutesInput').focus();
+      }
+    }
+
+    function applyCustomDuration() {
+      const val = parseInt(document.getElementById('customMinutesInput').value, 10);
+      if (val && val > 0 && val <= 300) {
+        selectPauseDuration(val);
+        document.getElementById('customDurationBox').classList.add('hidden');
+      } else {
+        alert('Ingresa una cantidad de minutos válida (1 a 300).');
+      }
+    }
+
+    function quickClearInterventionInput() {
+      document.getElementById('customerPhoneInput').value = '';
+      document.getElementById('phoneValidationAlert').classList.add('hidden');
+      document.getElementById('customerPhoneInput').classList.remove('border-error');
+      document.getElementById('customerPhoneInput').focus();
+    }
+
+    function executePauseChat() {
+      const phoneInput = document.getElementById('customerPhoneInput');
+      const valAlert = document.getElementById('phoneValidationAlert');
+      const spinner = document.getElementById('spinnerPauseChat');
+      const icon = document.getElementById('iconPauseChat');
+      const btn = document.getElementById('btnPauseChat');
+
+      const phone = phoneInput.value.trim();
+      const phoneDigits = phone.replace(/[^0-9]/g, '');
+
+      // Validation
+      if (!phone || phoneDigits.length < 8) {
+        valAlert.classList.remove('hidden');
+        phoneInput.classList.add('border-error');
+        phoneInput.focus();
+        return;
+      }
+
+      valAlert.classList.add('hidden');
+      phoneInput.classList.remove('border-error');
+      
+      // Loading State
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      icon.classList.add('hidden');
+
+      setTimeout(() => {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+        icon.classList.remove('hidden');
+
+        // Transition to active intervention panel
+        document.getElementById('humanInputContainer').classList.add('hidden');
+        const activePanel = document.getElementById('activeInterventionPanel');
+        activePanel.classList.remove('hidden');
+        document.getElementById('activeInterventionPhoneDisplay').textContent = phone;
+
+        // Metric Card update
+        document.getElementById('metricHumanCount').textContent = '1 activa';
+        document.getElementById('metricHumanDesc').textContent = `${phone} (${selectedPauseMinutes}m)`;
+
+        // Countdown timer
+        interventionSecondsLeft = selectedPauseMinutes * 60;
+        updateCountdownDisplay();
+        clearInterval(interventionTimer);
+        interventionTimer = setInterval(() => {
+          interventionSecondsLeft--;
+          if (interventionSecondsLeft <= 0) {
+            clearInterval(interventionTimer);
+            resumeChatDirectly(true);
+          } else {
+            updateCountdownDisplay();
+          }
+        }, 1000);
+
+        showToast(`✓ Pausa de ${selectedPauseMinutes} min activada para ${phone}`, 'success');
+      }, 450);
+    }
+
+    function updateCountdownDisplay() {
+      const m = Math.floor(interventionSecondsLeft / 60);
+      const s = interventionSecondsLeft % 60;
+      const displayStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      document.getElementById('interventionCountdownTicker').textContent = displayStr;
+    }
+
+    function resumeChatDirectly(autoExpired = false) {
+      clearInterval(interventionTimer);
+      document.getElementById('activeInterventionPanel').classList.add('hidden');
+      document.getElementById('humanInputContainer').classList.remove('hidden');
+
+      document.getElementById('metricHumanCount').textContent = '0 activas';
+      document.getElementById('metricHumanDesc').textContent = '5 min por chat individual';
+
+      const phone = document.getElementById('activeInterventionPhoneDisplay').textContent;
+      if (autoExpired) {
+        showToast(`Tiempo concluido. Bot reanudado para ${phone}`, 'info');
+      } else {
+        showToast(`✓ Bot reanudado exitosamente para ${phone}`, 'success');
+      }
+    }
+
+    // 5. Order Status Change Handler
+    function handleOrderStatusChange(orderId, newStatus) {
+      showToast(`✓ Pedido ${orderId}: Estado actualizado a "${newStatus}"`, 'success');
+    }
+
+    // 6. Simulator / Quick Actions for Inspector Ribbon
+    function simulateValidAccess() {
+      fillTestCredentials();
+      handlePrivateAuth();
+    }
+
+    function simulateInvalidAccess() {
+      const modal = document.getElementById('privateAccessModal');
+      modal.classList.remove('hidden');
+      document.getElementById('authPhone').value = '+57 300 000 0000';
+      document.getElementById('authToken').value = 'clave-invalida';
+      handlePrivateAuth();
+    }
+
+    function toggleSimulatedPausedState() {
+      if (isBotActive) {
+        setBotStatusDirect(false);
+        showToast('Bot pausado (estado simulado)', 'warning');
+      } else {
+        setBotStatusDirect(true);
+        showToast('Bot activo (estado simulado)', 'success');
+      }
+    }
+
+    function simulateActiveIntervention() {
+      document.getElementById('customerPhoneInput').value = '+57 310 999 8888';
+      selectedPauseMinutes = 10;
+      selectPauseDuration(10);
+      executePauseChat();
+    }
+</script>
+</body></html>

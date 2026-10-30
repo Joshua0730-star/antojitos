@@ -1,0 +1,20 @@
+{
+  "+573001239999": {
+    "phoneNumber": "+573001239999",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Quiero ordenar 3 fresas familiares para recoger",
+        "timestamp": "2026-10-30T22:33:16.463Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola! 🍓 En este momento tenemos una alta demanda en nuestros servidores. Por favor déjanos tu pedido detallado (producto, cantidad, dirección y método de pago) y un asesor te confirmará de inmediato.",
+        "timestamp": "2026-10-30T22:33:16.473Z"
+      }
+    ],
+    "currentStep": 1,
+    "coexistenceStatus": "BOT_ACTIVE",
+    "updatedAt": "2026-10-30T22:33:16.479Z"
+  }
+}

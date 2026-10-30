@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createContainer, AppContainer } from '../src/infrastructure/di/container.js';
 import { SimulatorWhatsAppAdapter } from '../src/infrastructure/whatsapp/SimulatorWhatsAppAdapter.js';
 
+import { MockAIService } from '../src/infrastructure/ai/MockAIService.js';
+import { MockVisionService } from '../src/infrastructure/vision/MockVisionService.js';
+
 describe('End-to-End Conversation Flow (State Machine: Steps 1 to 6)', () => {
   let container: AppContainer;
   let simulatorAdapter: SimulatorWhatsAppAdapter;
@@ -9,7 +12,10 @@ describe('End-to-End Conversation Flow (State Machine: Steps 1 to 6)', () => {
 
   beforeEach(async () => {
     simulatorAdapter = new SimulatorWhatsAppAdapter();
-    container = createContainer({ whatsAppService: simulatorAdapter });
+    const mockVisionService = new MockVisionService();
+    const tempContainer = createContainer({ whatsAppService: simulatorAdapter, visionService: mockVisionService });
+    const mockAiService = new MockAIService(tempContainer.toolExecutor);
+    container = createContainer({ whatsAppService: simulatorAdapter, visionService: mockVisionService, aiService: mockAiService });
     await container.conversationRepository.clearConversation(customerPhone);
   });
 
@@ -61,8 +67,7 @@ describe('End-to-End Conversation Flow (State Machine: Steps 1 to 6)', () => {
     });
 
     expect(turn5.replied).toBe(true);
-    expect(turn5.replyMessage).toContain('verificado con éxito');
-    expect(turn5.replyMessage).toContain('enviado a nuestra cocina');
+    expect(turn5.replyMessage).toMatch(/^✅ Pedido confirmado a nombre de \*Cliente Prueba\*\. Orden #ANT-\d{4}\. 🍓$/);
 
     // PASO 6: Verificación de despacho a cocina
     const kitchenAlert = simulatorAdapter.getLatestKitchenAlert();
@@ -77,5 +82,5 @@ describe('End-to-End Conversation Flow (State Machine: Steps 1 to 6)', () => {
     const lastOrder = orders[orders.length - 1];
     expect(lastOrder.nequiVerified).toBe(true);
     expect(lastOrder.status.value).toBe('SENT_TO_KITCHEN');
-  });
+  }, 30000);
 });

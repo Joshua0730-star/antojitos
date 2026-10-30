@@ -1,69 +1,214 @@
 {
   "comercio": "Antojitos",
-  "telefono_contacto": "+57 300 000 0000",
-  "numero_nequi": "3001234567",
+  "telefono_contacto": "+57 304 449 0607",
+  "numero_nequi": "3207407176",
   "metodos_pago": [
     "Efectivo contra entrega",
     "Transferencia Nequi"
   ],
+  "domicilios": {
+    "tarifa_base": 2000,
+    "tarifa_variable": true,
+    "barrios_lejanos": ["Los Pinos", "Mama Juana", "La Victoria", "Las Catorce", "Villa Marina"],
+    "reglas": {
+      "barrio_lejano_normal": 3000,
+      "barrio_lejano_lluvia": 5000,
+      "barrio_lejano_despues_7pm": 4000,
+      "normal_lluvia": 4000,
+      "normal_despues_7pm": 3000
+    },
+    "factores": ["localidad", "barrio_distante", "lluvia", "despues_de_las_7pm"],
+    "regla": "La tarifa final debe confirmarse con el negocio antes de cerrar el pedido; no se debe inventar."
+  },
   "productos": [
     {
       "id": "fresas_crema_std",
-      "nombre": "Fresas con Crema Especiales",
+      "nombre": "Fresas con crema",
       "categoria": "Fresas",
-      "descripcion": "Fresas frescas con crema de la casa y toppings a elección.",
-      "precio_base": 12000,
+      "descripcion": "Fresas con crema especial de la casa, una salsa y un topping incluidos.",
+      "precio_base": 13000,
       "opciones": {
         "tamaño": [
-          { "nombre": "Personal", "adicional": 0 },
-          { "nombre": "Grande", "adicional": 4000 }
+          {
+            "nombre": "9 onzas",
+            "adicional": 0
+          },
+          {
+            "nombre": "10 onzas",
+            "adicional": 2000
+          },
+          {
+            "nombre": "12 onzas",
+            "adicional": 5000
+          },
+          {
+            "nombre": "16 onzas",
+            "adicional": 7000
+          }
+        ],
+        "salsa": [
+          "Mora",
+          "Leche condensada",
+          "Fresa",
+          "Arequipe",
+          "Chocolate"
         ],
         "toppings": {
-          "max_seleccion": 2,
+          "max_seleccion": 1,
           "lista": [
-            "ChocoKrispis",
-            "Mani",
-            "Queso",
-            "Chispas de Chocolate"
+            "Brownie",
+            "Chocorramo",
+            "Masmelo",
+            "Biscolata (galletas rellenas de Nutella)",
+            "Chokis",
+            "Quipito",
+            "Ducales",
+            "Minichip",
+            "Zukaritas",
+            "Oreo",
+            "Leche en polvo",
+            "Flips (galletas recubiertas de chocolate)",
+            "Queso"
+          ]
+        },
+        "toppings_adicionales": [
+          {
+            "nombre": "Chocolate negro",
+            "adicional": 2000
+          },
+          {
+            "nombre": "Chocolate blanco",
+            "adicional": 2000
+          }
+        ]
+      }
+    },
+    {
+      "id": "bowl_fresas_doble",
+      "nombre": "Bowl de fresas con crema x 2",
+      "categoria": "Bowls",
+      "descripcion": "Bowl para dos personas de fresas con crema.",
+      "precio_base": 25000,
+      "opciones": {
+        "salsa": [
+          "Mora",
+          "Leche condensada",
+          "Fresa",
+          "Arequipe",
+          "Chocolate"
+        ],
+        "toppings": {
+          "max_seleccion": 1,
+          "lista": [
+            "Brownie",
+            "Chocorramo",
+            "Masmelo",
+            "Oreo",
+            "Queso"
           ]
         }
       }
     },
     {
-      "id": "oblea_tradicional",
-      "nombre": "Oblea la Especial",
-      "categoria": "Obleas",
-      "descripcion": "Oblea crujiente con arequipe, queso y adición a elegir.",
-      "precio_base": 7000,
+      "id": "bandeja_enamorate",
+      "nombre": "Bandeja Enamórate",
+      "categoria": "Bowls",
+      "descripcion": "Dos frutas, crema especial de la casa, mucho queso, obleas y una salsa.",
+      "precio_base": 30000,
       "opciones": {
+        "frutas": "2 frutas disponibles del día",
         "salsa": [
+          "Mora",
+          "Leche condensada",
+          "Fresa",
           "Arequipe",
-          "Lecherita",
-          "Mora"
-        ],
-        "adiciones_extra": [
-          { "nombre": "Salsa de Fresa", "adicional": 1000 },
-          { "nombre": "Doble Queso", "adicional": 2000 }
+          "Chocolate"
         ]
       }
     },
     {
-      "id": "ensalada_frutas_clasica",
-      "nombre": "Ensalada de Frutas Especial",
-      "categoria": "Ensaladas",
-      "descripcion": "Variedad de frutas frescas de temporada, helado y queso rayado.",
-      "precio_base": 14000,
+      "id": "bowl_enamorate",
+      "nombre": "Bowl Enamórate",
+      "categoria": "Bowls",
+      "descripcion": "Dos frutas disponibles, mucha crema especial de la casa, una salsa, un topping y obleas.",
+      "precio_base": 26000,
       "opciones": {
-        "sabor_helado": [
-          "Vainilla",
-          "Chocolate",
-          "Fresa"
+        "frutas": "2 frutas disponibles del día",
+        "salsa": [
+          "Mora",
+          "Leche condensada",
+          "Fresa",
+          "Arequipe",
+          "Chocolate"
         ],
-        "extra_queso": [
-          { "nombre": "Sin extra queso", "adicional": 0 },
-          { "nombre": "Con extra queso", "adicional": 1500 }
-        ]
+        "topping": "1 topping y obleas incluidos"
       }
+    },
+    {
+      "id": "ensalada_frutas",
+      "nombre": "Ensalada de frutas",
+      "categoria": "Ensaladas",
+      "descripcion": "Todas incluyen crema especial de la casa, queso y leche condensada. No incluyen helado; la diferencia es el tamaño y la cantidad.",
+      "precio_base": 16000,
+      "opciones": {
+        "tamaño": [
+          {
+            "nombre": "Sencilla",
+            "adicional": 0
+          },
+          {
+            "nombre": "Mini especial",
+            "adicional": 4000
+          },
+          {
+            "nombre": "Especial",
+            "adicional": 10000
+          }
+        ],
+        "nota": "No es helado"
+      }
+    },
+    {
+      "id": "oblea_sencilla",
+      "nombre": "Oblea sencilla",
+      "categoria": "Obleas",
+      "descripcion": "Oblea sencilla.",
+      "precio_base": 5000
+    },
+    {
+      "id": "oblea_mini_especial",
+      "nombre": "Oblea mini especial",
+      "categoria": "Obleas",
+      "descripcion": "Oblea mini especial.",
+      "precio_base": 8000
+    },
+    {
+      "id": "oblea_especial",
+      "nombre": "Oblea especial",
+      "categoria": "Obleas",
+      "descripcion": "Oblea especial.",
+      "precio_base": 12000
+    },
+    {
+      "id": "oblea_cuchareable",
+      "nombre": "Cuchareable de obleas",
+      "categoria": "Obleas",
+      "descripcion": "Cuchareable de obleas.",
+      "precio_base": 20000
+    },
+    {
+      "id": "sandwich_sencillo",
+      "nombre": "Sándwich sencillo",
+      "categoria": "Sándwiches",
+      "descripcion": "Jamón ahumado y quesillo.",
+      "precio_base": 6000
+    },
+    {
+      "id": "sandwich_especial_verduras",
+      "nombre": "Sándwich especial con verduras",
+      "categoria": "Sándwiches",
+      "descripcion": "Verduras frescas, quesillo y jamón ahumado.",
+      "precio_base": 8000
     }
   ]
 }

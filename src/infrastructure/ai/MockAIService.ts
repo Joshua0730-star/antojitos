@@ -26,21 +26,35 @@ export class MockAIService implements IAIService {
         message: `¡Hola! Bienvenido a *Antojitos* 🍓🍧 Soy AntojitoBot, tu asistente virtual.
 ¿Qué delicia te gustaría ordenar hoy?
 
-1️⃣ *Fresas con Crema Especiales* (Personal $12.000 / Grande $16.000)
-2️⃣ *Oblea la Especial* ($7.000)
-3️⃣ *Ensalada de Frutas Especial* ($14.000)
+1️⃣ *Fresas con Crema Especiales* (Personal $12.000 / 16 oz $20.000)
+2️⃣ *Oblea especial* ($12.000)
+3️⃣ *Ensalada de Frutas Especial* ($26.000)
 
 Dime qué se te antoja y te ayudaré con tu pedido paso a paso. 😊`,
         toolCalls: executedTools
       };
     }
 
-    if (lower.includes('fresa') || lower.includes('oblea') || lower.includes('ensalada')) {
+    if (lower.includes('oblea')) {
+      return {
+        message: `¡Entendido! 🧇 Anoté una *oblea*, no fresas con crema. Tenemos sencilla ($5.000), mini especial ($8.000), especial ($12.000) y cuchareable ($20.000). ¿Cuál deseas?`,
+        toolCalls: executedTools
+      };
+    }
+
+    if (lower.includes('ensalada')) {
+      return {
+        message: `¡Entendido! 🥗 Anoté una *ensalada de frutas*. ¿La deseas sencilla ($16.000), mini especial ($20.000) o especial ($26.000)?`,
+        toolCalls: executedTools
+      };
+    }
+
+    if (lower.includes('fresa')) {
       return {
         message: `¡Excelente elección! 🍓
 Para tus *Fresas con Crema Especiales*:
-¿Las deseas en tamaño *Personal* ($12.000) o *Grande* ($16.000)?
-Puedes elegir hasta 2 toppings: ChocoKrispis, Mani, Queso o Chispas de Chocolate.`,
+¿Las deseas en tamaño *Personal* ($12.000) o *16 oz* ($20.000)?
+Puedes elegir 1 topping incluido: Brownie, Oreo, Minichip, Queso u otra opción del catálogo.`,
         toolCalls: executedTools
       };
     }
@@ -60,7 +74,7 @@ Ahora, por favor indícame tus datos de entrega:
       return {
         message: `¡Listo! Aquí tienes el resumen de tu pedido:
 ------------------------------------
-• 1x Fresas con Crema Especiales (Grande) con Queso y ChocoKrispis: $16.000
+• 1x Fresas con Crema Especiales (16 oz) con Queso: $20.000
 • Domicilio: $0
 *TOTAL A PAGAR: $16.000 COP*
 ------------------------------------
@@ -101,10 +115,10 @@ B) *Nequi* 📱 (Te enviaré nuestro número para transferir)`,
               {
                 id_producto: 'fresas_crema_std',
                 nombre: 'Fresas con Crema Especiales',
-                precio_base: 12000,
+                precio_base: 13000,
                 cantidad: 1,
-                tamano: { nombre: 'Grande', adicional: 4000 },
-                toppings: ['Queso', 'ChocoKrispis']
+                tamano: { nombre: '16 onzas', adicional: 7000 },
+                toppings: ['Queso']
               }
             ],
             metodo_pago: 'NEQUI',
@@ -119,10 +133,7 @@ B) *Nequi* 📱 (Te enviaré nuestro número para transferir)`,
         });
 
         return {
-          message: `¡Comprobante Nequi verificado con éxito! ✅ (Ref: ${validationResult.referencia}).
-
-Tu pedido ha sido confirmado y enviado a nuestra cocina 🍓👨‍🍳 (Orden #${kitchenResult.orden_id}).
-Tiempo estimado de entrega: 25 a 40 minutos. ¡Muchas gracias por tu compra en Antojitos!`,
+          message: `✅ Pedido confirmado a nombre de *Cliente Prueba*. Orden #${kitchenResult.orden_id}. 🍓`,
           toolCalls: executedTools
         };
       } else {
@@ -149,10 +160,10 @@ Por favor revisa y envía nuevamente la captura de tu transferencia Nequi. 📱`
             {
               id_producto: 'fresas_crema_std',
               nombre: 'Fresas con Crema Especiales',
-              precio_base: 12000,
+              precio_base: 13000,
               cantidad: 1,
-              tamano: { nombre: 'Grande', adicional: 4000 },
-              toppings: ['Queso', 'Mani']
+              tamano: { nombre: '16 onzas', adicional: 7000 },
+                toppings: ['Queso']
             }
           ],
           metodo_pago: 'EFECTIVO',
@@ -167,9 +178,7 @@ Por favor revisa y envía nuevamente la captura de tu transferencia Nequi. 📱`
       });
 
       return {
-        message: `¡Excelente! Pedido confirmado con pago en *Efectivo contra entrega* 💵 (Orden #${kitchenResult.orden_id}).
-Llevaremos tu cambio correspondiente. Tu pedido ya está en preparación en cocina 🍓🛵.
-Tiempo estimado: 25 a 40 minutos. ¡Gracias por elegir Antojitos!`,
+        message: `✅ Pedido confirmado a nombre de *Cliente Efectivo*. Orden #${kitchenResult.orden_id}. 🍓`,
         toolCalls: executedTools
       };
     }

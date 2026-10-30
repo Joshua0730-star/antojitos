@@ -76,6 +76,26 @@ WHATSAPP_PROVIDER=simulator # o "cloud_api"
 PORT=3000
 ```
 
+### Persistencia para Cloud Run
+
+Cloud Run no conserva los archivos locales entre reinicios. Para pedidos,
+comprobantes y conversaciones usa PostgreSQL:
+
+```ini
+DATABASE_PROVIDER=postgres
+DATABASE_URL=postgresql://USUARIO:CONTRASEÑA@HOST/BASE?sslmode=require
+```
+
+Neon ofrece PostgreSQL compatible con un nivel gratuito por cuotas. Configura
+en `DATABASE_URL` la conexión pooled de Neon. El esquema se crea al iniciar el
+servicio o puedes prepararlo con `npm run db:init`. Si se superan las cuotas
+gratuitas, el cómputo puede suspenderse hasta el siguiente ciclo.
+
+El `Dockerfile` permite desplegar el servicio en Cloud Run. Allí el servidor
+escucha en `PORT` y el webhook está en `/webhook` (también
+`/api/v1/webhook`). Configura las claves y la cadena de base de datos como
+variables o secretos del servicio; no las incluyas en la imagen.
+
 ---
 
 ## 💻 Comandos Disponibles
@@ -115,3 +135,7 @@ Endpoints disponibles:
 - `GET /api/orders` -> Listado de pedidos registrados.
 - `GET /webhook` -> Verificación de WhatsApp Cloud API (Meta).
 - `POST /webhook` -> Recepción de mensajes y eventos de WhatsApp.
+
+### Evolution API
+
+Selecciona `WHATSAPP_PROVIDER=evolution_api` y configura `EVOLUTION_API_URL`, `EVOLUTION_API_KEY` y `EVOLUTION_API_INSTANCE`. El adaptador encapsula el envío de texto, imágenes y marcado como leído; el secreto debe mantenerse en variables de entorno o Secret Manager.

@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.env
+.env.*
+!.env.example
+data/*.db
+data/*.db-journal
+data/orders.json
+data/nequi_receipts.json
+data/conversations.json
+data/*.tmp
+data/*.log
