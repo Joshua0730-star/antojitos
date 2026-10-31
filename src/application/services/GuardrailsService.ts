@@ -62,6 +62,6 @@ export class GuardrailsService {
    * Respuesta de fallback segura en caso de caída temporal del proveedor de IA.
    */
   public getFallbackResponse(): string {
-    return '¡Hola! 🍓 En este momento tenemos una alta demanda en nuestros servidores. Por favor déjanos tu pedido detallado (producto, cantidad, dirección y método de pago) y un asesor te confirmará de inmediato.';
+    return '¡Hola! 🍓 Estamos teniendo una dificultad temporal para procesar tu mensaje. Por favor inténtalo nuevamente en unos instantes o déjanos tu pedido detallado y un asesor te ayudará.';
   }
 }

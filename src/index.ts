@@ -176,7 +176,7 @@ app.get('/api/admin/status', async (req, res) => {
       };
     }
   } catch { /* El estado operativo sigue disponible aunque falle una métrica secundaria. */ }
-  const schedule = container.operatingSchedule.getStatus();
+  const schedule = await container.operatingSchedule.getStatusAsync();
   res.json({
     ready: checks.every(check => check.ok), checks, schedule,
     state: { kind: schedule.open ? 'active' : 'off_hours', label: schedule.open ? 'Activo' : 'Fuera de horario' },
@@ -342,8 +342,8 @@ app.post('/api/admin/command', async (req, res) => {
   const phone = typeof req.body?.phoneNumber === 'string' ? req.body.phoneNumber.replace(/\D/g, '') : '';
   const pauseMinutes = req.body?.pauseMinutes === undefined ? undefined : Number(req.body.pauseMinutes);
   if (command === '!horario on' || command === '!horario abrir' || command === '!horario off' || command === '!horario cerrar') {
-    const handled = container.operatingSchedule.handleOperatorCommand(command);
-    res.json({ ok: handled, schedule: container.operatingSchedule.getStatus() });
+    const handled = await container.operatingSchedule.handleOperatorCommand(command);
+    res.json({ ok: handled, schedule: await container.operatingSchedule.getStatusAsync() });
     return;
   }
   if (command === '!bot off' && phone && pauseMinutes !== undefined) {

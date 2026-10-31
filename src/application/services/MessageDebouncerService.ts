@@ -1,6 +1,7 @@
 import { ICacheService } from '../../infrastructure/cache/RedisService.js';
 import { ProcessIncomingMessageUseCase, IncomingMessagePayload, ProcessMessageResult } from '../use-cases/ProcessIncomingMessageUseCase.js';
 import { ENV } from '../../infrastructure/config/env.js';
+import type { OperatingScheduleService } from './OperatingScheduleService.js';
 
 export interface QueuedMessage {
   from: string;
@@ -17,7 +18,8 @@ export class MessageDebouncerService {
   constructor(
     private readonly cacheService: ICacheService,
     private readonly processUseCase: ProcessIncomingMessageUseCase,
-    private readonly debounceMs: number = ENV.MESSAGE_DEBOUNCE_MS
+    private readonly debounceMs: number = ENV.MESSAGE_DEBOUNCE_MS,
+    private readonly operatingSchedule?: OperatingScheduleService
   ) {}
 
   /**
@@ -51,7 +53,14 @@ export class MessageDebouncerService {
     // 4. Programar ejecución agrupada tras expirar la ventana de tiempo
     const timer = setTimeout(async () => {
       this.timers.delete(phoneNumber);
-      await this.flushAndExecute(phoneNumber);
+      try {
+        await this.flushAndExecute(phoneNumber);
+      } catch (error) {
+        console.error('[debouncer] failed to process queued message', {
+          phoneNumber: phoneNumber.replace(/\d(?=\d{4})/g, '*'),
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
     }, this.debounceMs);
 
     this.timers.set(phoneNumber, timer);
@@ -100,6 +109,14 @@ export class MessageDebouncerService {
 
     // Si no hay texto ni imagen ni evento, nada que procesar
     if (!combinedText && !immediatePayload?.imageUrl && !immediatePayload?.isCallEvent) {
+      return null;
+    }
+
+    // El webhook valida el horario al recibir el mensaje, pero el debouncer
+    // puede ejecutar varios segundos después. Revalidar aquí evita que un
+    // mensaje encolado antes del cierre termine invocando IA o creando un
+    // pedido fuera de horario.
+    if (this.operatingSchedule && !(await this.operatingSchedule.isOpenAsync())) {
       return null;
     }
 

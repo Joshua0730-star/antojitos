@@ -1,4 +1,4 @@
-import { IAIService, AIResponse } from '../ports/IAIService.js';
+import { IAIService, AIResponse, classifyAIError } from '../ports/IAIService.js';
 import { IWhatsAppService } from '../ports/IWhatsAppService.js';
 import { IConversationRepository } from '../../domain/repositories/IConversationRepository.js';
 import { ContextOptimizerService } from '../services/ContextOptimizerService.js';
@@ -222,8 +222,14 @@ export class ProcessIncomingMessageUseCase {
       );
       this.observability.recordLlmLatency(Date.now() - startedAt);
     } catch (error) {
-      this.observability.increment('llmErrors');
-      console.error('Error en el servicio de IA, activando fallback:', error);
+      const failure = classifyAIError(error);
+      this.observability.recordLlmError(failure.kind);
+      console.error('[ai] generation failed; activating fallback', {
+        kind: failure.kind,
+        retryable: failure.retryable,
+        status: failure.status,
+        message: failure.message
+      });
       const fallbackMsg = this.guardrailsService.getFallbackResponse();
       aiResponse = { message: fallbackMsg };
       this.observability.increment('fallbackReplies');

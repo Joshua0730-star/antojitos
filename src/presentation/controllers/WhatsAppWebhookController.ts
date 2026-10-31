@@ -148,7 +148,7 @@ export class WhatsAppWebhookController {
             const humanText = humanMessage.conversation || humanMessage.extendedTextMessage?.text || humanMessage.imageMessage?.caption || '';
             if (customerIdentity) await this.coexistenceService.registerHumanEcho(customerIdentity, humanText);
           }
-          this.operatingSchedule?.handleOperatorCommand(String(body.data.message?.conversation || ''));
+          await this.operatingSchedule?.handleOperatorCommand(String(body.data.message?.conversation || ''));
           return;
         }
 
@@ -219,7 +219,7 @@ export class WhatsAppWebhookController {
             return;
           }
         }
-        if (this.operatingSchedule && !this.operatingSchedule.isOpen()) {
+        if (this.operatingSchedule && !(await this.operatingSchedule.isOpenAsync())) {
           // Fuera de horario el webhook debe quedar silencioso: no enviamos
           // respuesta propia ni encolamos el mensaje. WhatsApp Business queda
           // libre para aplicar su mensaje automático de ausencia.
@@ -263,7 +263,7 @@ export class WhatsAppWebhookController {
           if (textBody.trim().toLowerCase() === '!bot on' || textBody.trim().toLowerCase() === '!bot off') {
             await this.coexistenceService.handleCommand(targetCustomerPhone, textBody);
           } else {
-            this.operatingSchedule?.handleOperatorCommand(textBody);
+            await this.operatingSchedule?.handleOperatorCommand(textBody);
             // Operador humano respondiendo manualmente
             await this.coexistenceService.registerHumanEcho(targetCustomerPhone, textBody);
           }
@@ -378,7 +378,7 @@ export class WhatsAppWebhookController {
             return;
           }
         }
-        if (this.operatingSchedule && !this.operatingSchedule.isOpen()) {
+        if (this.operatingSchedule && !(await this.operatingSchedule.isOpenAsync())) {
           // No consumir IA ni responder desde el bot fuera del horario. La
           // respuesta, si está configurada, la gestiona WhatsApp Business.
           return;
@@ -422,7 +422,7 @@ export class WhatsAppWebhookController {
           }
         }
 
-        if (this.operatingSchedule && !this.operatingSchedule.isOpen()) {
+        if (this.operatingSchedule && !(await this.operatingSchedule.isOpenAsync())) {
           return;
         }
 

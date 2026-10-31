@@ -149,7 +149,7 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
   const intentRouter = overrides?.intentRouter || new IntentRouterService();
   const guardrailsService = overrides?.guardrailsService || new GuardrailsService();
   const observability = overrides?.observability || new ObservabilityService();
-  const operatingSchedule = overrides?.operatingSchedule || new OperatingScheduleService();
+  const operatingSchedule = overrides?.operatingSchedule || new OperatingScheduleService(cacheService);
 
   // 7. Servicios de Coexistencia y Procesamiento
   let processIncomingMessageUseCase: ProcessIncomingMessageUseCase;
@@ -158,7 +158,7 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
     overrides?.debouncerService ||
     new MessageDebouncerService(cacheService, {
       execute: (payload) => processIncomingMessageUseCase.execute(payload)
-    } as ProcessIncomingMessageUseCase);
+    } as ProcessIncomingMessageUseCase, ENV.MESSAGE_DEBOUNCE_MS, operatingSchedule);
 
   const coexistenceService =
     overrides?.coexistenceService ||

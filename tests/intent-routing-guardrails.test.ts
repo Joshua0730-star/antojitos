@@ -117,10 +117,10 @@ describe('AI Optimization Pillars: Intent Routing, Guardrails & Reliability', ()
       });
 
       expect(result.replied).toBe(true);
-      expect(result.replyMessage).toContain('alta demanda en nuestros servidores');
+      expect(result.replyMessage).toContain('dificultad temporal');
       expect(mockWhatsApp.sendMessage).toHaveBeenCalledWith(
         '+573001239999',
-        expect.stringContaining('alta demanda')
+        expect.stringContaining('dificultad temporal')
       );
     });
   });

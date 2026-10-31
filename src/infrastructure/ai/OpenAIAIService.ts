@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { IAIService, AIResponse, ToolCallResult } from '../../application/ports/IAIService.js';
+import { IAIService, AIResponse, ToolCallResult, AIServiceError, classifyAIError } from '../../application/ports/IAIService.js';
 import { ChatMessage } from '../../domain/repositories/IConversationRepository.js';
 import { SYSTEM_PROMPT } from '../config/systemPrompt.js';
 import { AI_TOOLS_DEFINITIONS } from './ToolDefinitions.js';
@@ -72,13 +72,7 @@ export class OpenAIAIService implements IAIService {
     while (iterations < maxIterations) {
       iterations++;
 
-      const response = await this.openai.chat.completions.create({
-        model: this.model,
-        messages,
-        tools: AI_TOOLS_DEFINITIONS,
-        tool_choice: 'auto',
-        temperature: 0.2
-      });
+      const response = await this.createCompletionWithRetry(messages);
 
       const responseMessage = response.choices[0]?.message;
       if (!responseMessage) {
@@ -137,5 +131,32 @@ export class OpenAIAIService implements IAIService {
       message: 'Tu pedido está siendo gestionado. Un asesor de Antojitos te responderá en breve. 🍓',
       toolCalls: executedTools
     };
+  }
+
+  private async createCompletionWithRetry(
+    messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+    const maxAttempts = Math.max(1, ENV.OPENAI_MAX_RETRIES + 1);
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await this.openai.chat.completions.create({
+          model: this.model,
+          messages,
+          tools: AI_TOOLS_DEFINITIONS,
+          tool_choice: 'auto',
+          temperature: 0.2
+        });
+      } catch (error) {
+        const failure = classifyAIError(error);
+        if (!failure.retryable || attempt >= maxAttempts) {
+          throw failure;
+        }
+        const delayMs = Math.min(2_000, 250 * (2 ** (attempt - 1))) + Math.floor(Math.random() * 150);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+
+    throw new AIServiceError('El proveedor de IA no respondió.', 'unknown', false);
   }
 }

@@ -7,6 +7,7 @@ export interface ObservabilitySnapshot {
   totalLlmLatencyMs: number;
   slowReplies: number;
   qualityWarnings: number;
+  llmErrorsByKind: Record<string, number>;
 }
 
 /** Métricas ligeras, sin PII ni contenido de conversaciones. */
@@ -20,9 +21,10 @@ export class ObservabilityService {
     totalLlmLatencyMs: 0
     ,slowReplies: 0
     ,qualityWarnings: 0
+    ,llmErrorsByKind: {}
   };
 
-  public increment(metric: keyof Omit<ObservabilitySnapshot, 'totalLlmLatencyMs'>): void {
+  public increment(metric: Exclude<keyof ObservabilitySnapshot, 'totalLlmLatencyMs' | 'llmErrorsByKind'>): void {
     this.snapshot[metric] += 1;
   }
 
@@ -31,6 +33,11 @@ export class ObservabilityService {
       this.snapshot.totalLlmLatencyMs += Math.round(milliseconds);
       if (milliseconds > 8000) this.snapshot.slowReplies += 1;
     }
+  }
+
+  public recordLlmError(kind: string): void {
+    this.snapshot.llmErrors += 1;
+    this.snapshot.llmErrorsByKind[kind] = (this.snapshot.llmErrorsByKind[kind] || 0) + 1;
   }
 
   /** Evaluación interna: nunca se envía al cliente ni contiene PII. */

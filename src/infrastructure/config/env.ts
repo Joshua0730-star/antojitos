@@ -2,6 +2,25 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+function resolveRedisUrl(): string {
+  const configuredUrl = process.env.REDIS_URL?.trim();
+  if (configuredUrl) return configuredUrl;
+
+  // Upstash exposes a REST endpoint and token, while ioredis needs the
+  // TLS Redis endpoint. This fallback lets Cloud Run use the same Upstash
+  // credentials without putting a derived password in source code.
+  const restUrl = process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  if (!restUrl || !token) return '';
+
+  try {
+    const endpoint = new URL(restUrl);
+    return `rediss://default:${encodeURIComponent(token)}@${endpoint.hostname}:6379`;
+  } catch {
+    return '';
+  }
+}
+
 export function normalizeAdminPhone(value: string): string {
   const digits = value.replace(/\D/g, '');
   if (digits.length === 10 && digits.startsWith('3')) return `57${digits}`;
@@ -15,8 +34,9 @@ export const ENV = {
   AI_PROVIDER: (process.env.AI_PROVIDER || 'openai') as 'openai' | 'gemini' | 'mock',
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-4o',
-  OPENAI_TIMEOUT_MS: parseInt(process.env.OPENAI_TIMEOUT_MS || '1200', 10),
+  OPENAI_TIMEOUT_MS: parseInt(process.env.OPENAI_TIMEOUT_MS || '10000', 10),
   OPENAI_MAX_ITERATIONS: parseInt(process.env.OPENAI_MAX_ITERATIONS || '3', 10),
+  OPENAI_MAX_RETRIES: parseInt(process.env.OPENAI_MAX_RETRIES || '2', 10),
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
   GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
   WHATSAPP_PROVIDER: (process.env.WHATSAPP_PROVIDER || 'simulator') as 'simulator' | 'cloud_api' | 'evolution_api',
@@ -36,7 +56,9 @@ export const ENV = {
   DATABASE_PROVIDER: (process.env.DATABASE_PROVIDER || (process.env.DATABASE_URL ? 'postgres' : 'local')) as 'local' | 'postgres',
   DATABASE_URL: process.env.DATABASE_URL || '',
   DATABASE_PATH: process.env.DATABASE_PATH || './data/antojitos.db',
-  REDIS_URL: process.env.REDIS_URL || '',
+  REDIS_URL: resolveRedisUrl(),
+  UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL || '',
+  UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN || '',
   REDIS_HOST: process.env.REDIS_HOST || '',
   REDIS_PORT: parseInt(process.env.REDIS_PORT || '6379', 10),
   REDIS_PASSWORD: process.env.REDIS_PASSWORD || undefined,
