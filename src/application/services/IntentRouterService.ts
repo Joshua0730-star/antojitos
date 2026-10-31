@@ -17,6 +17,10 @@ export class IntentRouterService {
   private menuKeywords = [
     /^ver\s+men[uú]$/i,
     /^men[uú]$/i,
+    /^(?:dame|p[aá]same|env[ií]ame|mu[eé]strame|muestra)\s+(?:el\s+)?men[uú]$/i,
+    /^(?:quiero|quisiera|puedo)\s+(?:ver|conocer|consultar)\s+(?:el\s+)?men[uú]$/i,
+    /^(?:dame|p[aá]same|mu[eé]strame|muestra)\s+(?:la\s+)?carta$/i,
+    /^(?:quiero|quisiera)\s+(?:(?:ver|conocer)\s+)?(?:la\s+)?carta$/i,
     /^carta$/i,
     /^qu[eé]\s+venden\??$/i,
     /^precios$/i,
