@@ -183,6 +183,10 @@ export class WhatsAppWebhookController {
         const userText =
           evolutionMessage.conversation ||
           evolutionMessage.extendedTextMessage?.text ||
+          evolutionMessage.listResponseMessage?.singleSelectReply?.selectedRowId ||
+          evolutionMessage.listResponseMessage?.singleSelectReply?.title ||
+          evolutionMessage.buttonsResponseMessage?.selectedButtonId ||
+          evolutionMessage.buttonsResponseMessage?.selectedDisplayText ||
           evolutionMessage.imageMessage?.caption ||
           '';
         // Si el cliente responde con su número desde un LID, úsalo como
@@ -230,7 +234,7 @@ export class WhatsAppWebhookController {
           await this.debouncerService.enqueueMessage({ from, text: userText, imageUrl, messageId });
           console.log('[webhook] inbound message queued');
         } else {
-          await this.processIncomingMessageUseCase.execute({ from, text: userText, imageUrl });
+          await this.processIncomingMessageUseCase.execute({ from, text: userText, imageUrl, messageId });
         }
         return;
       }
@@ -330,7 +334,8 @@ export class WhatsAppWebhookController {
           } else {
             await this.processIncomingMessageUseCase.execute({
               from,
-              isCallEvent: true
+              isCallEvent: true,
+              messageId
             });
           }
           return;
@@ -358,6 +363,11 @@ export class WhatsAppWebhookController {
 
         if (message.type === 'text') {
           userText = message.text?.body || '';
+        } else if (message.type === 'interactive') {
+          const reply = message.interactive?.list_reply || message.interactive?.button_reply;
+          // El título es comprensible para la FSM; el id queda como respaldo
+          // para integraciones que solo entregan ese campo.
+          userText = reply?.title || reply?.id || '';
         } else if (message.type === 'image') {
           userText = message.image?.caption || '';
           const rawMediaId = message.image?.id || message.image?.url;
@@ -396,7 +406,8 @@ export class WhatsAppWebhookController {
           await this.processIncomingMessageUseCase.execute({
             from,
             text: userText,
-            imageUrl
+            imageUrl,
+            messageId
           });
         }
         return;
@@ -438,6 +449,7 @@ export class WhatsAppWebhookController {
             from: body.from,
             text: body.text,
             imageUrl: body.imageUrl,
+            messageId: body.messageId,
             isCallEvent: body.isCallEvent
           });
         }

@@ -66,6 +66,22 @@ describe('Production Chatbot Optimization Standards', () => {
       const optimized = contextOptimizer.optimizeHistory(smallHistory);
       expect(optimized.length).toBe(2);
     });
+
+    it('limita el periodo humano y prioriza sus acuerdos recientes', () => {
+      const takeoverStartedAt = new Date('2026-10-31T10:00:00.000Z');
+      const history: ChatMessage[] = Array.from({ length: 8 }, (_, index) => ({
+        role: index % 2 === 0 ? 'user' : 'assistant',
+        content: index < 4 ? `previo-${index}` : `humano-${index}`,
+        timestamp: new Date(`2026-10-31T${index < 4 ? '09' : '10'}:${String(index).padStart(2, '0')}:00.000Z`)
+      }));
+
+      const optimized = new ContextOptimizerService(4).optimizeHistory(history, takeoverStartedAt);
+
+      expect(optimized).toHaveLength(4);
+      expect(optimized.map(message => message.content)).toEqual([
+        'humano-4', 'humano-5', 'humano-6', 'humano-7'
+      ]);
+    });
   });
 
   describe('Message Debouncer & Burst Batching', () => {
@@ -125,6 +141,24 @@ describe('Production Chatbot Optimization Standards', () => {
           imageUrl: 'data:image/jpeg;base64,mock...'
         })
       );
+    });
+
+    it('recupera un buffer pendiente cuando la réplica original pierde su temporizador local', async () => {
+      const mockUseCase = {
+        execute: vi.fn().mockResolvedValue({ replied: true, replyMessage: 'Recuperado', isCallRejection: false })
+      } as unknown as ProcessIncomingMessageUseCase;
+      const firstReplica = new MessageDebouncerService(cacheService, mockUseCase, 100);
+      const secondReplica = new MessageDebouncerService(cacheService, mockUseCase, 100);
+      const phone = '+573008887766';
+
+      await firstReplica.enqueueMessage({ from: phone, text: 'Mensaje pendiente tras reinicio' });
+      for (const timer of (firstReplica as unknown as { timers: Map<string, NodeJS.Timeout> }).timers.values()) clearTimeout(timer);
+      (firstReplica as unknown as { timers: Map<string, NodeJS.Timeout> }).timers.clear();
+
+      await new Promise(resolve => setTimeout(resolve, 450));
+      expect(mockUseCase.execute).toHaveBeenCalledTimes(1);
+      expect(mockUseCase.execute).toHaveBeenCalledWith(expect.objectContaining({ from: phone, text: 'Mensaje pendiente tras reinicio' }));
+      void secondReplica;
     });
   });
 });

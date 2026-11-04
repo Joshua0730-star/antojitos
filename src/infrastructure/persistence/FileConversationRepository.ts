@@ -5,11 +5,15 @@ import {
   ConversationState,
   ChatMessage
 } from '../../domain/repositories/IConversationRepository.js';
+import { normalizeContactIdentity } from '../../application/utils/contactIdentity.js';
 
 interface SerializedConversation {
   phoneNumber: string;
   messages: Array<{
     role: 'user' | 'assistant' | 'system';
+    author?: 'customer' | 'bot' | 'human' | 'system';
+    source?: 'whatsapp_customer' | 'bot_api' | 'human_mobile' | 'system';
+    messageId?: string;
     content: string;
     imageUrl?: string;
     timestamp: string;
@@ -21,6 +25,7 @@ interface SerializedConversation {
   humanTakeoverStartedAt?: string;
   humanPauseUntil?: string;
   botPausedIndefinitely?: boolean;
+  fsmSession?: ConversationState['fsmSession'];
   updatedAt: string;
 }
 
@@ -47,10 +52,12 @@ export class FileConversationRepository implements IConversationRepository {
   }
 
   private writeAll(data: Record<string, SerializedConversation>): void {
+    fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
     fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
   }
 
   public async getState(phoneNumber: string): Promise<ConversationState> {
+    phoneNumber = normalizeContactIdentity(phoneNumber);
     const all = this.readAll();
     const existing = all[phoneNumber];
 
@@ -77,11 +84,13 @@ export class FileConversationRepository implements IConversationRepository {
       humanTakeoverStartedAt: existing.humanTakeoverStartedAt ? new Date(existing.humanTakeoverStartedAt) : undefined,
       humanPauseUntil: existing.humanPauseUntil ? new Date(existing.humanPauseUntil) : undefined,
       botPausedIndefinitely: existing.botPausedIndefinitely,
+      fsmSession: existing.fsmSession,
       updatedAt: new Date(existing.updatedAt)
     };
   }
 
   public async saveState(state: ConversationState): Promise<void> {
+    state = { ...state, phoneNumber: normalizeContactIdentity(state.phoneNumber) };
     const all = this.readAll();
     all[state.phoneNumber] = {
       phoneNumber: state.phoneNumber,
@@ -96,12 +105,14 @@ export class FileConversationRepository implements IConversationRepository {
       humanTakeoverStartedAt: state.humanTakeoverStartedAt ? state.humanTakeoverStartedAt.toISOString() : undefined,
       humanPauseUntil: state.humanPauseUntil ? state.humanPauseUntil.toISOString() : undefined,
       botPausedIndefinitely: state.botPausedIndefinitely,
+      fsmSession: state.fsmSession,
       updatedAt: state.updatedAt.toISOString()
     };
     this.writeAll(all);
   }
 
   public async addMessage(phoneNumber: string, message: ChatMessage): Promise<void> {
+    phoneNumber = normalizeContactIdentity(phoneNumber);
     const state = await this.getState(phoneNumber);
     state.messages.push(message);
     state.updatedAt = new Date();
@@ -109,6 +120,7 @@ export class FileConversationRepository implements IConversationRepository {
   }
 
   public async clearConversation(phoneNumber: string): Promise<void> {
+    phoneNumber = normalizeContactIdentity(phoneNumber);
     const all = this.readAll();
     delete all[phoneNumber];
     this.writeAll(all);

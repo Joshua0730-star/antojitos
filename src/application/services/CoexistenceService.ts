@@ -40,6 +40,8 @@ export class CoexistenceService {
     if (messageText.trim()) {
       await this.conversationRepo.addMessage(cleanPhone, {
         role: 'assistant',
+        author: 'human',
+        source: 'human_mobile',
         content: messageText,
         timestamp: now
       });
@@ -63,6 +65,8 @@ export class CoexistenceService {
     const cleanPhone = normalizeContactIdentity(customerPhone);
     await this.conversationRepo.addMessage(cleanPhone, {
       role: 'user',
+      author: 'customer',
+      source: 'whatsapp_customer',
       content: messageText,
       imageUrl,
       timestamp: new Date()
@@ -88,13 +92,16 @@ export class CoexistenceService {
 
     if (trimmed === '!bot off') {
       const state = await this.conversationRepo.getState(cleanPhone);
+      const now = new Date();
       state.coexistenceStatus = 'HUMAN_TAKE-OVER';
       state.botPausedIndefinitely = true;
-      state.lastHumanInteraction = new Date();
+      state.lastHumanInteraction = now;
       state.humanTakeoverStartedAt = state.humanTakeoverStartedAt || state.lastHumanInteraction;
       state.humanPauseUntil = undefined;
-      state.updatedAt = new Date();
+      state.updatedAt = now;
       await this.conversationRepo.saveState(state);
+      const bufferedMessages = await this.debouncerService?.cancelPending(cleanPhone);
+      await this.persistBufferedCustomerMessages(cleanPhone, bufferedMessages || [], now);
       return true;
     }
 
@@ -131,6 +138,8 @@ export class CoexistenceService {
       if (!content.trim()) continue;
       await this.conversationRepo.addMessage(customerPhone, {
         role: 'user',
+        author: 'customer',
+        source: 'whatsapp_customer',
         content,
         timestamp
       });

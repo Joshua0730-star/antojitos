@@ -1,4 +1,4 @@
-import { IWhatsAppService } from '../../application/ports/IWhatsAppService.js';
+import { IWhatsAppService, type WhatsAppInteractiveList } from '../../application/ports/IWhatsAppService.js';
 
 export interface CloudApiConfig {
   phoneNumberId: string;
@@ -53,6 +53,23 @@ export class CloudApiWhatsAppAdapter implements IWhatsAppService {
       console.error('Error al enviar mensaje WhatsApp Cloud API:', error);
       return false;
     }
+  }
+
+  public async sendInteractiveList(to: string, list: WhatsAppInteractiveList): Promise<boolean> {
+    try {
+      const response = await fetch(this.baseUrl, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${this.config.accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messaging_product: 'whatsapp', recipient_type: 'individual', ...this.recipient(to), type: 'interactive', interactive: {
+          type: 'list',
+          ...(list.header ? { header: { type: 'text', text: list.header } } : {}),
+          body: { text: list.body },
+          ...(list.footer ? { footer: { text: list.footer } } : {}),
+          action: { button: list.button, sections: list.sections }
+        } })
+      });
+      if (!response.ok) console.error('WhatsApp Cloud API Error (lista):', await response.text());
+      return response.ok;
+    } catch (error) { console.error('Error al enviar lista WhatsApp Cloud API:', error); return false; }
   }
 
   public async sendImage(to: string, imageUrl: string, caption?: string): Promise<boolean> {

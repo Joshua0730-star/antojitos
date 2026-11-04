@@ -5,6 +5,7 @@ import { Order, OrderProps } from '../../domain/entities/Order.js';
 import { Customer } from '../../domain/entities/Customer.js';
 import { OrderItem, SizeOption, ExtraAddition, ExtraCheeseOption } from '../../domain/entities/OrderItem.js';
 import { OrderStatus } from '../../domain/value-objects/OrderStatus.js';
+import type { IOrderPaymentPort } from '../../application/ports/IOrderPaymentPort.js';
 
 interface SerializedOrder {
   id: string;
@@ -33,11 +34,12 @@ interface SerializedOrder {
   cashBillAmount?: number;
   nequiReference?: string;
   nequiVerified: boolean;
+  deliveryFee?: number;
   status: string;
   createdAt: string;
 }
 
-export class FileOrderRepository implements IOrderRepository {
+export class FileOrderRepository implements IOrderRepository, IOrderPaymentPort {
   private readonly filePath: string;
 
   constructor(storageDir: string = './data') {
@@ -74,6 +76,7 @@ export class FileOrderRepository implements IOrderRepository {
       cashBillAmount: row.cashBillAmount,
       nequiReference: row.nequiReference,
       nequiVerified: row.nequiVerified,
+      deliveryFee: row.deliveryFee,
       status: new OrderStatus(row.status as any),
       createdAt: new Date(row.createdAt)
     });
@@ -110,6 +113,7 @@ export class FileOrderRepository implements IOrderRepository {
       cashBillAmount: order.cashBillAmount,
       nequiReference: order.nequiReference,
       nequiVerified: order.nequiVerified,
+      deliveryFee: order.deliveryFee,
       status: order.status.value,
       createdAt: order.createdAt.toISOString()
     };
@@ -128,6 +132,18 @@ export class FileOrderRepository implements IOrderRepository {
     const found = items.find(item => item.id === id);
     if (!found) return null;
     return this.deserialize(found);
+  }
+
+  public async markPaymentVerified(orderId: string, reference: string): Promise<boolean> {
+    const items = this.readAll();
+    const index = items.findIndex(item => item.id === orderId);
+    if (index < 0) return false;
+    if (items[index].paymentMethod !== 'NEQUI' || items[index].status === 'CANCELLED') return false;
+    items[index].nequiVerified = true;
+    items[index].nequiReference = reference;
+    items[index].status = 'PAYMENT_VERIFIED';
+    this.writeAll(items);
+    return true;
   }
 
   public async findLatestByPhoneNumber(phoneNumber: string): Promise<Order | null> {

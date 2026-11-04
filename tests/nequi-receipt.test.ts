@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ValidateNequiReceiptUseCase } from '../src/application/use-cases/ValidateNequiReceiptUseCase.js';
 import { MockVisionService } from '../src/infrastructure/vision/MockVisionService.js';
 import { INequiReceiptRepository } from '../src/domain/repositories/INequiReceiptRepository.js';
@@ -9,6 +9,13 @@ class InMemoryReceiptRepo implements INequiReceiptRepository {
 
   async existsReference(reference: string): Promise<boolean> {
     return this.receipts.has(reference.toUpperCase());
+  }
+
+  async saveIfReferenceUnused(receipt: NequiReceipt): Promise<boolean> {
+    const reference = receipt.reference.toUpperCase();
+    if (this.receipts.has(reference)) return false;
+    this.receipts.set(reference, receipt);
+    return true;
   }
 
   async save(receipt: NequiReceipt): Promise<void> {
@@ -128,5 +135,28 @@ describe('ValidateNequiReceiptUseCase (Anti-Fraude y Negocio)', () => {
 
     expect(result.exito).toBe(false);
     expect(result.mensaje).toContain('no corresponde a un comprobante Nequi');
+  });
+
+  it('marca la orden como pagada después de reservar la referencia', async () => {
+    const paymentPort = { markPaymentVerified: vi.fn().mockResolvedValue(true) };
+    const paymentUseCase = new ValidateNequiReceiptUseCase(visionService, receiptRepo, paymentPort);
+    const today = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    visionService.setExtractionResult({
+      es_comprobante_nequi: true,
+      monto: 23000,
+      numero_m39_referencia: 'M12340000',
+      fecha_hora: today,
+      estado_legible: true,
+      sospecha_fraude: false
+    });
+
+    const result = await paymentUseCase.execute({
+      imageUrl: 'test.jpg',
+      expectedAmount: 23000,
+      orderId: 'ANT-PAYMENT-1'
+    });
+
+    expect(result.exito).toBe(true);
+    expect(paymentPort.markPaymentVerified).toHaveBeenCalledWith('ANT-PAYMENT-1', 'M12340000');
   });
 });

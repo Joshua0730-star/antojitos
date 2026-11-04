@@ -124,4 +124,29 @@ describe('Domain Layer: Entities & Value Objects', () => {
     expect(kitchenMsg).toContain('Nequi (VERIFICADO ✅)');
     expect(kitchenMsg).toContain('Ref. Nequi:* M98765432');
   });
+
+  it('incluye la tarifa de domicilio en el total sin alterar el subtotal', () => {
+    const order = new Order({
+      id: 'ANT-DOMI-1',
+      customer: new Customer({
+        name: 'Ana',
+        phoneNumber: '573001234567',
+        deliveryType: 'DOMICILIO',
+        address: 'Calle 1',
+        neighborhoodOrMunicipality: 'Centro'
+      }),
+      items: [new OrderItem({
+        productId: 'oblea_especial',
+        productName: 'Oblea especial',
+        category: 'Obleas',
+        basePrice: 12000,
+        quantity: 1
+      })],
+      paymentMethod: 'NEQUI',
+      deliveryFee: 2000
+    });
+
+    expect(order.getSubtotal().amount).toBe(12000);
+    expect(order.getTotal().amount).toBe(14000);
+  });
 });

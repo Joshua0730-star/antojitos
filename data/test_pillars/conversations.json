@@ -1,20 +1,46 @@
 {
-  "+573001239999": {
-    "phoneNumber": "+573001239999",
+  "573001239999": {
+    "phoneNumber": "573001239999",
     "messages": [
       {
         "role": "user",
+        "author": "customer",
+        "source": "whatsapp_customer",
         "content": "Quiero ordenar 3 fresas familiares para recoger",
-        "timestamp": "2026-10-31T22:13:26.513Z"
+        "timestamp": "2026-11-04T15:02:24.149Z"
       },
       {
         "role": "assistant",
+        "author": "bot",
+        "source": "bot_api",
         "content": "¡Hola! 🍓 Estamos teniendo una dificultad temporal para procesar tu mensaje. Por favor inténtalo nuevamente en unos instantes o déjanos tu pedido detallado y un asesor te ayudará.",
-        "timestamp": "2026-10-31T22:13:26.519Z"
+        "timestamp": "2026-11-04T15:02:24.168Z"
       }
     ],
-    "currentStep": 1,
+    "currentStep": 2,
     "coexistenceStatus": "BOT_ACTIVE",
-    "updatedAt": "2026-10-31T22:13:26.533Z"
+    "fsmSession": {
+      "state": "CONFIGURING_PRODUCT",
+      "cart": [
+        {
+          "productId": "fresas_crema_24oz",
+          "productName": "Fresas con crema",
+          "sizeOz": 24,
+          "unitPrice": 28000,
+          "quantity": 3,
+          "toppings": [],
+          "sauces": []
+        }
+      ],
+      "delivery": {
+        "mode": "PICKUP",
+        "modeConfirmed": true,
+        "municipality": "Pueblo Bello"
+      },
+      "interruptionStack": [],
+      "unknownAttempts": 0,
+      "lastPrompt": "Anoté 3x Fresas con crema de 24 oz. Elige 1 salsa:\n1) Mora  2) Fresa  3) Arequipe  4) Leche condensada  5) Chocolate"
+    },
+    "updatedAt": "2026-11-04T15:02:24.180Z"
   }
 }

@@ -41,6 +41,8 @@ import { OrderOutboxDispatcher } from '../../application/services/OrderOutboxDis
 import { PanelOrderNotifier } from '../http/PanelOrderNotifier.js';
 import type { IOrderOutbox } from '../../application/ports/IOrderOutbox.js';
 import type { PanelOrderPayload } from '../../application/ports/IPanelOrderNotifier.js';
+import type { IOrderCreationPort } from '../../application/ports/IOrderCreationPort.js';
+import type { IOrderIdempotencyPort } from '../../application/ports/IOrderIdempotencyPort.js';
 
 export interface AppContainer {
   orderRepository: IOrderRepository;
@@ -64,6 +66,7 @@ export interface AppContainer {
   observability: ObservabilityService;
   operatingSchedule: OperatingScheduleService;
   orderOutbox?: IOrderOutbox<PanelOrderPayload>;
+  orderCreationPort?: IOrderCreationPort;
   outboxDispatcher?: OrderOutboxDispatcher<PanelOrderPayload>;
 }
 
@@ -72,10 +75,17 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
   const postgresPool = ENV.DATABASE_PROVIDER === 'postgres' ? getPostgresPool() : undefined;
   const orderRepository = overrides?.orderRepository ||
     (postgresPool ? new PostgresOrderRepository(postgresPool) : new FileOrderRepository());
-  const panelOrderNotifier = postgresPool && ENV.ENABLE_ORDER_OUTBOX && ENV.PANEL_API_URL
+  const usesPostgresOrderPersistence = Boolean(postgresPool && !overrides?.orderRepository);
+  const panelOrderNotifier = usesPostgresOrderPersistence && ENV.ENABLE_ORDER_OUTBOX && ENV.PANEL_API_URL
     ? new PanelOrderNotifier({ baseUrl: ENV.PANEL_API_URL, authorizationToken: ENV.PANEL_API_TOKEN || undefined })
     : undefined;
-  const orderOutbox = postgresPool ? new PostgresOrderOutbox<PanelOrderPayload>(postgresPool) : undefined;
+  const orderOutbox = usesPostgresOrderPersistence ? new PostgresOrderOutbox<PanelOrderPayload>(postgresPool!) : undefined;
+  const orderCreationPort = usesPostgresOrderPersistence && ENV.ENABLE_ORDER_OUTBOX && ENV.PANEL_API_URL && typeof (orderRepository as any).saveOrderAndEnqueue === 'function'
+    ? orderRepository as unknown as IOrderCreationPort
+    : undefined;
+  const orderIdempotencyPort = usesPostgresOrderPersistence && typeof (orderRepository as any).saveOrderIdempotently === 'function'
+    ? orderRepository as unknown as IOrderIdempotencyPort
+    : undefined;
   const outboxDispatcher = orderOutbox && panelOrderNotifier
     ? new OrderOutboxDispatcher(orderOutbox, { publish: async (entry) => { await panelOrderNotifier.publishPayload(entry.payload); } })
     : undefined;
@@ -121,14 +131,14 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
   const getCatalogUseCase = overrides?.getCatalogUseCase || new GetCatalogUseCase();
   const validateReceiptUseCase =
     overrides?.validateReceiptUseCase ||
-    new ValidateNequiReceiptUseCase(visionService, receiptRepository);
+    new ValidateNequiReceiptUseCase(visionService, receiptRepository, (orderRepository as any).markPaymentVerified ? orderRepository as any : undefined);
   const notifyKitchenUseCase =
     overrides?.notifyKitchenUseCase ||
-    new NotifyKitchenUseCase(whatsAppService, orderRepository, orderOutbox, panelOrderNotifier);
+    new NotifyKitchenUseCase(whatsAppService, orderRepository, orderOutbox, panelOrderNotifier, orderCreationPort, conversationRepository, orderIdempotencyPort);
 
   const toolExecutor =
     overrides?.toolExecutor ||
-    new ToolExecutor(getCatalogUseCase, validateReceiptUseCase, notifyKitchenUseCase);
+    new ToolExecutor(getCatalogUseCase, validateReceiptUseCase, notifyKitchenUseCase, undefined, orderRepository);
 
   // 5. Motor de IA
   let aiService: IAIService;
@@ -198,7 +208,7 @@ export function createContainer(overrides?: Partial<AppContainer>): AppContainer
     processIncomingMessageUseCase,
     toolExecutor,
     observability
-    ,operatingSchedule, orderOutbox, outboxDispatcher
+    ,operatingSchedule, orderOutbox, orderCreationPort, outboxDispatcher
   };
 }
 

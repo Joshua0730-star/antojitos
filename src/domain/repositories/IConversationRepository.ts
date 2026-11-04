@@ -2,6 +2,10 @@ import type { OrderSession } from '../fsm/orderFsm.js';
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
+  /** Identifica quién originó el mensaje; role se conserva por compatibilidad. */
+  author?: 'customer' | 'bot' | 'human' | 'system';
+  source?: 'whatsapp_customer' | 'bot_api' | 'human_mobile' | 'system';
+  messageId?: string;
   content: string;
   imageUrl?: string;
   timestamp: Date;

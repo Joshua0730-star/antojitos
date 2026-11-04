@@ -66,7 +66,12 @@ describe('seguridad del webhook Meta', () => {
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith('EVENT_RECEIVED');
-    expect(useCase.execute).toHaveBeenCalledWith({ from: '573001234567', text: 'Hola', imageUrl: undefined });
+    expect(useCase.execute).toHaveBeenCalledWith({
+      from: '573001234567',
+      text: 'Hola',
+      imageUrl: undefined,
+      messageId: 'wamid.security-1'
+    });
   });
 
   it('rechaza una firma inválida antes de validar o procesar el evento', async () => {

@@ -59,7 +59,7 @@ Puedes elegir 1 topping incluido: Brownie, Oreo, Minichip, Queso u otra opción 
       };
     }
 
-    if (lower.includes('personal') || lower.includes('grande') || lower.includes('topping')) {
+    if (lower.includes('personal') || lower.includes('grande') || lower.includes('16 oz') || lower.includes('12 oz') || lower.includes('topping') || lower.includes('queso')) {
       return {
         message: `¡Perfecto! Anotado. 📝
 Ahora, por favor indícame tus datos de entrega:
@@ -70,13 +70,14 @@ Ahora, por favor indícame tus datos de entrega:
       };
     }
 
-    if (lower.includes('cra') || lower.includes('calle') || lower.includes('domicilio') || lower.includes('recoger')) {
+    if (lower.includes('cra') || lower.includes('calle') || lower.includes('domicilio') || lower.includes('recoger') || lower.includes('punto físico') || lower.includes('punto fisico')) {
+      const pickup = lower.includes('recoger') || lower.includes('punto físico') || lower.includes('punto fisico');
       return {
         message: `¡Listo! Aquí tienes el resumen de tu pedido:
 ------------------------------------
 • 1x Fresas con Crema Especiales (16 oz) con Queso: $20.000
-• Domicilio: $0
-*TOTAL A PAGAR: $16.000 COP*
+• ${pickup ? 'Recogida en el punto físico' : 'Domicilio'}: $0
+*TOTAL A PAGAR: $20.000 COP*
 ------------------------------------
 ¿Cómo deseas pagar?
 A) *Efectivo contra entrega* 💵 (Indícame con cuánto billete pagarás)
@@ -88,50 +89,43 @@ B) *Nequi* 📱 (Te enviaré nuestro número para transferir)`,
     // Flujo Nequi / Imagen de comprobante
     if (imageUrl || lower.includes('comprobante') || lower.includes('transferencia') || lower.includes('nequi')) {
       const mockImg = imageUrl || 'mock_comprobante_16000.jpg';
+      const orderDetails = {
+        cliente: {
+          nombre: 'Cliente Prueba',
+          telefono: '+573001234567',
+          tipo_entrega: 'DOMICILIO' as const,
+          direccion: 'Cra 15 # 45-20',
+          barrio_municipio: 'Centro'
+        },
+        items: [{
+          id_producto: 'fresas_crema_std',
+          nombre: 'Fresas con Crema Especiales',
+          precio_base: 13000,
+          cantidad: 1,
+          tamano: { nombre: '16 onzas', adicional: 7000 },
+          toppings: ['Queso'],
+          salsa: 'Fresa'
+        }],
+        metodo_pago: 'NEQUI' as const
+      };
+      const kitchenResult = await this.toolExecutor.executeTool('notificar_cocina', {
+        resumen_pedido_formatted: '',
+        detalles_json: orderDetails
+      });
+      executedTools.push({ toolName: 'notificar_cocina', args: { detalles_json: orderDetails }, result: kitchenResult });
+
       const validationResult = await this.toolExecutor.executeTool('validar_comprobante_nequi', {
         image_url: mockImg,
-        monto_esperado: 16000
+        order_id: kitchenResult.orden_id
       });
 
       executedTools.push({
         toolName: 'validar_comprobante_nequi',
-        args: { image_url: mockImg, monto_esperado: 16000 },
+        args: { image_url: mockImg, order_id: kitchenResult.orden_id },
         result: validationResult
       });
 
       if (validationResult.exito) {
-        // Enviar a cocina
-        const kitchenResult = await this.toolExecutor.executeTool('notificar_cocina', {
-          resumen_pedido_formatted: '',
-          detalles_json: {
-            cliente: {
-              nombre: 'Cliente Prueba',
-              telefono: '+573001234567',
-              tipo_entrega: 'DOMICILIO',
-              direccion: 'Cra 15 # 45-20',
-              barrio_municipio: 'Centro'
-            },
-            items: [
-              {
-                id_producto: 'fresas_crema_std',
-                nombre: 'Fresas con Crema Especiales',
-                precio_base: 13000,
-                cantidad: 1,
-                tamano: { nombre: '16 onzas', adicional: 7000 },
-                toppings: ['Queso']
-              }
-            ],
-            metodo_pago: 'NEQUI',
-            referencia_nequi: validationResult.referencia
-          }
-        });
-
-        executedTools.push({
-          toolName: 'notificar_cocina',
-          args: {},
-          result: kitchenResult
-        });
-
         return {
           message: `✅ Pedido confirmado a nombre de *Cliente Prueba*. Orden #${kitchenResult.orden_id}. 🍓`,
           toolCalls: executedTools
@@ -163,7 +157,8 @@ Por favor revisa y envía nuevamente la captura de tu transferencia Nequi. 📱`
               precio_base: 13000,
               cantidad: 1,
               tamano: { nombre: '16 onzas', adicional: 7000 },
-                toppings: ['Queso']
+                toppings: ['Queso'],
+                salsa: 'Fresa'
             }
           ],
           metodo_pago: 'EFECTIVO',

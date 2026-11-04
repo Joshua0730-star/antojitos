@@ -4,17 +4,21 @@
     "messages": [
       {
         "role": "user",
+        "author": "customer",
+        "source": "whatsapp_customer",
         "content": "Hola",
-        "timestamp": "2026-10-31T22:13:27.093Z"
+        "timestamp": "2026-11-04T15:02:24.555Z"
       },
       {
         "role": "assistant",
+        "author": "bot",
+        "source": "bot_api",
         "content": "¡Hola! 🍓 Bienvenido a *Antojitos*, donde los antojos se hacen realidad.\n\n¿En qué te podemos consentir hoy?\n1️⃣ *Ver el Menú Completo*\n2️⃣ *Hacer un Pedido*\n3️⃣ *Consultar Estado de mi Pedido*\n\nEscríbenos lo que deseas ordenar o cuéntanos si tienes alguna duda.",
-        "timestamp": "2026-10-31T22:13:27.094Z"
+        "timestamp": "2026-11-04T15:02:24.556Z"
       }
     ],
     "currentStep": 1,
     "coexistenceStatus": "BOT_ACTIVE",
-    "updatedAt": "2026-10-31T22:13:27.106Z"
+    "updatedAt": "2026-11-04T15:02:24.570Z"
   }
 }

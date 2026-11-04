@@ -24,6 +24,37 @@ describe('Antojitos order FSM', () => {
     expect(changed.session.cart[0].sizeOz).toBe(16);
   });
 
+  it('personaliza en pasos cortos: salsa, luego topping y luego entrega', () => {
+    const fsm = createOrderFsm();
+    const product = fsm.transition({ type: 'MESSAGE', text: 'una de 12' });
+    expect(product.reply).toContain('salsa');
+    const sauce = fsm.transition({ type: 'MESSAGE', text: 'arequipe' });
+    expect(sauce.session.cart[0].sauces).toEqual(['arequipe']);
+    expect(sauce.reply).toContain('topping');
+    const topping = fsm.transition({ type: 'MESSAGE', text: 'brownie' });
+    expect(topping.session.cart[0].toppings).toEqual(['brownie']);
+    expect(topping.reply).toContain('Domicilio');
+    expect(topping.reply).toContain('Recoger');
+  });
+
+  it('acepta números de las listas sin confundirlos entre pasos', () => {
+    const fsm = createOrderFsm();
+    fsm.transition({ type: 'MESSAGE', text: 'una de 12' });
+    const sauce = fsm.transition({ type: 'MESSAGE', text: '3' });
+    expect(sauce.session.cart[0].sauces).toEqual(['arequipe']);
+    const topping = fsm.transition({ type: 'MESSAGE', text: '2' });
+    expect(topping.session.cart[0].toppings).toEqual(['chocorramo']);
+    const delivery = fsm.transition({ type: 'MESSAGE', text: '2' });
+    expect(delivery.session.delivery.mode).toBe('PICKUP');
+  });
+
+  it('conserva la cantidad expresada por el cliente', () => {
+    const fsm = createOrderFsm();
+    const result = fsm.transition({ type: 'MESSAGE', text: 'Quiero 3 fresas familiares para recoger' });
+    expect(result.session.cart[0]).toMatchObject({ quantity: 3, sizeOz: 24 });
+    expect(result.reply).toContain('3x');
+  });
+
   it('responde FAQ y vuelve a engancharse al estado pendiente', () => {
     const fsm = createOrderFsm();
     fsm.transition({ type: 'MESSAGE', text: 'regálame una de 12' });
@@ -31,7 +62,7 @@ describe('Antojitos order FSM', () => {
     expect(faq.session.state).toBe('CONFIGURING_PRODUCT');
     expect(faq.session.interruptionStack).toEqual(['CONFIGURING_PRODUCT']);
     expect(faq.reply).toMatch(/horario/i);
-    expect(faq.reply).toContain('toppings');
+    expect(faq.reply).toContain('salsa');
   });
 
   it('entiende centro como barrio y produce un re-hook de entrega', () => {
@@ -42,6 +73,31 @@ describe('Antojitos order FSM', () => {
     expect(result.session.state).toBe('COLLECTING_DELIVERY');
     expect(result.session.delivery.neighborhood).toBe('Centro');
     expect(result.reply).toContain('nombre');
+  });
+
+  it('no convierte una dirección en recogida y conserva la intención de domicilio', () => {
+    const fsm = createOrderFsm();
+    fsm.transition({ type: 'MESSAGE', text: 'regálame una de 12' });
+    fsm.transition({ type: 'MESSAGE', text: 'continuemos con la entrega' });
+    const result = fsm.transition({
+      type: 'MESSAGE',
+      text: 'Envíamela al Prado, frente al parque, donde Karen'
+    });
+
+    expect(result.session.delivery.mode).toBe('DELIVERY');
+    expect(result.session.delivery.address).toContain('Prado');
+    expect(result.reply).toContain('nombre');
+    expect(result.reply).not.toMatch(/recoger/i);
+  });
+
+  it('reconoce recogida explícita y no solicita dirección', () => {
+    const fsm = createOrderFsm();
+    fsm.transition({ type: 'MESSAGE', text: 'regálame una de 12' });
+    fsm.transition({ type: 'MESSAGE', text: 'quiero recoger en el punto físico' });
+    const result = fsm.transition({ type: 'MESSAGE', text: 'sí, a nombre de Ana' });
+
+    expect(result.session.delivery.mode).toBe('PICKUP');
+    expect(result.reply).not.toMatch(/dirección|barrio/i);
   });
 
   it('rechaza transiciones inválidas y no muta el estado previo', () => {

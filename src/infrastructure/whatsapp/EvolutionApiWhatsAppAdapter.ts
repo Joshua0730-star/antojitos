@@ -1,4 +1,4 @@
-import { IWhatsAppService } from '../../application/ports/IWhatsAppService.js';
+import { IWhatsAppService, type WhatsAppInteractiveList } from '../../application/ports/IWhatsAppService.js';
 
 export interface EvolutionApiConfig {
   baseUrl: string;
@@ -44,6 +44,20 @@ export class EvolutionApiWhatsAppAdapter implements IWhatsAppService {
     });
   }
 
+  public async sendInteractiveList(to: string, list: WhatsAppInteractiveList): Promise<boolean> {
+    return this.request(`/message/sendList/${encodeURIComponent(this.config.instance)}`, {
+      number: this.number(to),
+      title: list.header || 'Antojitos',
+      description: list.body,
+      buttonText: list.button,
+      footerText: list.footer || '',
+      sections: list.sections.map(section => ({
+        title: section.title || '',
+        rows: section.rows.map(row => ({ rowId: row.id, title: row.title, description: row.description || '' }))
+      }))
+    });
+  }
+
   public async sendImage(to: string, imageUrl: string, caption?: string): Promise<boolean> {
     return this.request(`/message/sendMedia/${encodeURIComponent(this.config.instance)}`, {
       number: this.number(to),
@@ -55,7 +69,7 @@ export class EvolutionApiWhatsAppAdapter implements IWhatsAppService {
 
   public async sendDocument(to: string, documentUrl: string, filename: string, caption?: string): Promise<boolean> {
     return this.request(`/message/sendMedia/${encodeURIComponent(this.config.instance)}`, {
-      number: this.number(to), mediatype: 'document', media: documentUrl,
+      number: this.number(to), mediatype: 'document', mimetype: 'application/pdf', media: documentUrl,
       fileName: filename, caption: caption || ''
     });
   }

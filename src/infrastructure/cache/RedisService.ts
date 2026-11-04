@@ -8,6 +8,7 @@ export interface ICacheService {
   del(key: string): Promise<void>;
   pushToList(key: string, item: string, ttlSeconds?: number): Promise<void>;
   getList(key: string): Promise<string[]>;
+  drainList(key: string): Promise<string[]>;
   acquireLock(lockKey: string, ttlSeconds?: number): Promise<boolean>;
   releaseLock(lockKey: string): Promise<void>;
   isAvailable(): boolean;
@@ -196,6 +197,31 @@ export class RedisService implements ICacheService {
       this.memoryStore.delete(key);
       return [];
     }
+    return Array.isArray(item.value) ? item.value : [];
+  }
+
+  /** Reads and deletes a list atomically so two Cloud Run replicas cannot
+   * consume the same debounce buffer or lose a message between GET and DEL. */
+  public async drainList(key: string): Promise<string[]> {
+    if (this.isAvailable() && this.client) {
+      try {
+        const result = await this.client.eval(
+          `local values = redis.call('LRANGE', KEYS[1], 0, -1)
+           redis.call('DEL', KEYS[1])
+           return values`,
+          1,
+          key
+        );
+        return Array.isArray(result) ? result.map(String) : [];
+      } catch {
+        // Fall through to the local fallback.
+      }
+    }
+
+    const item = this.memoryStore.get(key);
+    if (!item) return [];
+    this.memoryStore.delete(key);
+    if (item.expiresAt && Date.now() > item.expiresAt) return [];
     return Array.isArray(item.value) ? item.value : [];
   }
 

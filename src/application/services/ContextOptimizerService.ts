@@ -17,12 +17,21 @@ export class ContextOptimizerService {
       return history;
     }
 
-    // Los acuerdos alcanzados durante una intervención humana no se recortan
-    // al reanudar el bot, aunque superen la ventana normal de contexto.
+    // Los acuerdos alcanzados durante una intervención humana tienen prioridad
+    // al reanudar el bot, pero siguen estando limitados por la ventana máxima.
+    // Una pausa larga no debe hacer crecer el prompt sin límite.
     if (preserveFrom) {
-      const preserved = history.filter(message => message.timestamp >= preserveFrom);
-      if (preserved.length >= this.maxMessages) return preserved;
-      return [...history.slice(0, this.maxMessages - preserved.length), ...preserved];
+      const beforeTakeover = history.filter(message => message.timestamp < preserveFrom);
+      const duringTakeover = history.filter(message => message.timestamp >= preserveFrom);
+      const preserved = duringTakeover.slice(-this.maxMessages);
+      const remainingSlots = Math.max(0, this.maxMessages - preserved.length);
+
+      // Se conserva el contexto inmediatamente anterior solo para completar
+      // la ventana. El contenido acordado durante la pausa siempre prevalece.
+      return [
+        ...(remainingSlots > 0 ? beforeTakeover.slice(-remainingSlots) : []),
+        ...preserved
+      ];
     }
 
     // Tomar los últimos N mensajes configurados

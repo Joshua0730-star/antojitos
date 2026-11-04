@@ -1,8 +1,13 @@
-import { IWhatsAppService } from '../../application/ports/IWhatsAppService.js';
+import { IWhatsAppService, type WhatsAppInteractiveList } from '../../application/ports/IWhatsAppService.js';
 
 export class SimulatorWhatsAppAdapter implements IWhatsAppService {
   private kitchenAlerts: string[] = [];
-  private outbox: Array<{ to: string; text?: string; imageUrl?: string }> = [];
+  private outbox: Array<{ to: string; text?: string; imageUrl?: string; interactiveList?: WhatsAppInteractiveList }> = [];
+
+  public async sendInteractiveList(to: string, interactiveList: WhatsAppInteractiveList): Promise<boolean> {
+    this.outbox.push({ to, interactiveList });
+    return true;
+  }
 
   public async sendMessage(to: string, text: string): Promise<boolean> {
     this.outbox.push({ to, text });
@@ -32,7 +37,7 @@ export class SimulatorWhatsAppAdapter implements IWhatsAppService {
     return [...this.kitchenAlerts];
   }
 
-  public getOutbox(): Array<{ to: string; text?: string; imageUrl?: string }> {
+  public getOutbox(): Array<{ to: string; text?: string; imageUrl?: string; interactiveList?: WhatsAppInteractiveList }> {
     return [...this.outbox];
   }
 

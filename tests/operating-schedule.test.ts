@@ -10,6 +10,7 @@ class MemoryCache implements ICacheService {
   async del(key: string): Promise<void> { this.values.delete(key); }
   async pushToList(): Promise<void> {}
   async getList(): Promise<string[]> { return []; }
+  async drainList(): Promise<string[]> { return []; }
   async acquireLock(): Promise<boolean> { return true; }
   async releaseLock(): Promise<void> {}
   isAvailable(): boolean { return true; }
@@ -28,6 +29,19 @@ describe('horario operativo persistente', () => {
     const second = new OperatingScheduleService(cache);
     expect(await second.isOpenAsync(now)).toBe(false);
     await second.handleOperatorCommand('!horario on', now);
+    expect(await first.isOpenAsync(now)).toBe(true);
+  });
+
+  it('persiste la pausa global y bloquea el procesamiento en otra instancia', async () => {
+    const cache = new MemoryCache();
+    const now = new Date('2026-11-03T20:00:00.000Z');
+    const first = new OperatingScheduleService(cache);
+    await first.handleOperatorCommand('!horario on', now);
+    await first.handleOperatorCommand('!bot global off', now);
+    const second = new OperatingScheduleService(cache);
+    expect(await second.isOpenAsync(now)).toBe(false);
+    expect((await second.getStatusAsync(now)).globallyPaused).toBe(true);
+    await second.handleOperatorCommand('!bot global on', now);
     expect(await first.isOpenAsync(now)).toBe(true);
   });
 });

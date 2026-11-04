@@ -20,7 +20,8 @@ export class OpenAIAIService implements IAIService {
   public async generateReply(
     history: ChatMessage[],
     userMessage: string,
-    imageUrl?: string
+    imageUrl?: string,
+    requestId?: string
   ): Promise<AIResponse> {
     const executedTools: ToolCallResult[] = [];
 
@@ -46,7 +47,10 @@ export class OpenAIAIService implements IAIService {
           messages.push({ role: 'user', content: msg.content });
         }
       } else if (msg.role === 'assistant') {
-        messages.push({ role: 'assistant', content: msg.content });
+        const content = msg.author === 'human'
+          ? `[Mensaje enviado por un encargado humano; no lo presentes como una promesa propia del bot]: ${msg.content}`
+          : msg.content;
+        messages.push({ role: 'assistant', content });
       }
     }
 
@@ -98,7 +102,7 @@ export class OpenAIAIService implements IAIService {
 
           let toolOutput: any;
           try {
-            toolOutput = await this.toolExecutor.executeTool(functionName, parsedArgs);
+            toolOutput = await this.toolExecutor.executeTool(functionName, parsedArgs, requestId);
           } catch (error: any) {
             toolOutput = { error: error.message };
           }

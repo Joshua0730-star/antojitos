@@ -38,12 +38,21 @@ export function registerOperationsRoutes(app: Express, isAdminRequest: Auth, get
       if (typeof req.query.cursor === 'string' && req.query.cursor.length <= 512) {
         try { cursor = JSON.parse(Buffer.from(req.query.cursor, 'base64url').toString('utf8')); } catch { cursor = null; }
       }
-      const result = await getDb().query(`SELECT id, phone_number AS "phoneNumber", created_at AS "createdAt",
-        payload->'customer'->>'name' AS "customerName", payload->>'status' AS status,
-        payload->>'paymentMethod' AS "paymentMethod", payload->'items' AS items
-        FROM bot_orders
-        WHERE ($1::timestamptz IS NULL OR (created_at, id) < ($1::timestamptz, $2::text))
-        ORDER BY created_at DESC, id DESC LIMIT $3`, [cursor?.createdAt ?? null, cursor?.id ?? null, limit + 1]);
+      const result = await getDb().query(`SELECT o.id, o.phone_number AS "phoneNumber", o.created_at AS "createdAt",
+        o.payload->'customer'->>'name' AS "customerName", o.payload->>'status' AS status,
+        o.payload->>'paymentMethod' AS "paymentMethod", o.payload->'items' AS items,
+        COALESCE(s.subtotal_cents, 0) AS "subtotalCents",
+        COALESCE(s.delivery_cents, NULLIF(o.payload->>'deliveryFee','')::int, 0) AS "deliveryCents",
+        COALESCE(s.total_cents, NULL) AS "totalCents",
+        COALESCE(s.status, CASE WHEN (o.payload->>'nequiVerified')::boolean THEN 'confirmed' ELSE 'pending' END) AS "paymentStatus",
+        COALESCE((o.payload->>'nequiVerified')::boolean, false) AS "nequiVerified",
+        CASE WHEN NULLIF(o.payload->>'nequiReference','') IS NULL THEN NULL
+          ELSE RIGHT(o.payload->>'nequiReference', 4) END AS "nequiReferenceLast4",
+        o.payload->'customer' AS customer
+        FROM bot_orders o
+        LEFT JOIN sales s ON s.order_id = o.id
+        WHERE ($1::timestamptz IS NULL OR (o.created_at, o.id) < ($1::timestamptz, $2::text))
+        ORDER BY o.created_at DESC, o.id DESC LIMIT $3`, [cursor?.createdAt ?? null, cursor?.id ?? null, limit + 1]);
       const hasMore = result.rows.length > limit;
       const orders = hasMore ? result.rows.slice(0, limit) : result.rows;
       const last = orders[orders.length - 1];
@@ -154,15 +163,17 @@ export function registerOperationsRoutes(app: Express, isAdminRequest: Auth, get
       const subtotalCents = normalized.reduce((sum: number, item: any) => sum + item.quantity * item.unitPriceCents, 0);
       const id = crypto.randomUUID();
       const db = getDb();
-      await db.query('BEGIN');
+      const client = await db.connect();
       try {
-        await db.query(`INSERT INTO sales (id,source,order_id,status,subtotal_cents,delivery_cents,total_cents,payment_method)
+        await client.query('BEGIN');
+        await client.query(`INSERT INTO sales (id,source,order_id,status,subtotal_cents,delivery_cents,total_cents,payment_method)
           VALUES ($1,$2,$3,'pending',$4,$5,$6,$7)`, [id, source, req.body?.orderId || null, subtotalCents, deliveryCents, subtotalCents + deliveryCents, paymentMethod]);
-        for (const item of normalized) await db.query(`INSERT INTO sale_items (id,sale_id,variant_id,product_name,quantity,unit_price_cents,customizations)
+        for (const item of normalized) await client.query(`INSERT INTO sale_items (id,sale_id,variant_id,product_name,quantity,unit_price_cents,customizations)
           VALUES ($1,$2,$3,$4,$5,$6,$7)`, [crypto.randomUUID(), id, item.variantId, item.productName, item.quantity, item.unitPriceCents, JSON.stringify(item.customizations)]);
-        await audit(db, 'create', 'sale', id, { source, itemCount: normalized.length });
-        await db.query('COMMIT');
-      } catch (error) { await db.query('ROLLBACK'); throw error; }
+        await audit(client, 'create', 'sale', id, { source, itemCount: normalized.length });
+        await client.query('COMMIT');
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
       res.status(201).json({ ok: true, saleId: id, status: 'pending', subtotalCents, deliveryCents, totalCents: subtotalCents + deliveryCents });
     } catch (error) { fail(res, error); }
   });
@@ -171,30 +182,32 @@ export function registerOperationsRoutes(app: Express, isAdminRequest: Auth, get
     if (!isAdminRequest(req)) { res.status(401).json({ error: 'No autorizado' }); return; }
     const saleId = req.params.id;
     const db = getDb();
+    const client = await db.connect();
     try {
-      await db.query('BEGIN');
-      const sale = (await db.query('SELECT id,status FROM sales WHERE id=$1 FOR UPDATE', [saleId])).rows[0];
+      await client.query('BEGIN');
+      const sale = (await client.query('SELECT id,status FROM sales WHERE id=$1 FOR UPDATE', [saleId])).rows[0];
       if (!sale) throw new Error('Venta no encontrada');
-      if (sale.status === 'confirmed') { await db.query('ROLLBACK'); res.json({ ok: true, status: 'confirmed', alreadyConfirmed: true }); return; }
+      if (sale.status === 'confirmed') { await client.query('ROLLBACK'); res.json({ ok: true, status: 'confirmed', alreadyConfirmed: true }); return; }
       if (sale.status === 'cancelled') throw new Error('No se puede confirmar una venta cancelada');
-      const items = (await db.query('SELECT variant_id AS "variantId",quantity FROM sale_items WHERE sale_id=$1', [saleId])).rows;
+      const items = (await client.query('SELECT variant_id AS "variantId",quantity FROM sale_items WHERE sale_id=$1', [saleId])).rows;
       for (const item of items) {
         if (!item.variantId) continue;
-        const ingredients = (await db.query(`SELECT ingredient_id AS "ingredientId",quantity FROM product_recipe_items WHERE variant_id=$1`, [item.variantId])).rows;
+        const ingredients = (await client.query(`SELECT ingredient_id AS "ingredientId",quantity FROM product_recipe_items WHERE variant_id=$1`, [item.variantId])).rows;
         for (const ingredient of ingredients) {
           const required = Number(ingredient.quantity) * Number(item.quantity);
-          const updated = await db.query(`UPDATE inventory_ingredients SET quantity=quantity-$1,updated_at=NOW()
+          const updated = await client.query(`UPDATE inventory_ingredients SET quantity=quantity-$1,updated_at=NOW()
             WHERE id=$2 AND quantity >= $1 RETURNING quantity`, [required, ingredient.ingredientId]);
           if (!updated.rowCount) throw new Error(`Inventario insuficiente para el ingrediente ${ingredient.ingredientId}`);
-          await db.query(`INSERT INTO inventory_movements (id,ingredient_id,movement_type,quantity,reference_id,note)
+          await client.query(`INSERT INTO inventory_movements (id,ingredient_id,movement_type,quantity,reference_id,note)
             VALUES ($1,$2,'sale',$3,$4,$5)`, [crypto.randomUUID(), ingredient.ingredientId, -required, saleId, 'Descuento por venta confirmada']);
         }
       }
-      await db.query(`UPDATE sales SET status='confirmed',confirmed_at=NOW() WHERE id=$1`, [saleId]);
-      await audit(db, 'confirm', 'sale', saleId, { inventoryAdjusted: true });
-      await db.query('COMMIT');
+      await client.query(`UPDATE sales SET status='confirmed',confirmed_at=NOW() WHERE id=$1`, [saleId]);
+      await audit(client, 'confirm', 'sale', saleId, { inventoryAdjusted: true });
+      await client.query('COMMIT');
       res.json({ ok: true, status: 'confirmed', inventoryAdjusted: true });
-    } catch (error) { try { await db.query('ROLLBACK'); } catch { /* no-op */ } fail(res, error); }
+    } catch (error) { try { await client.query('ROLLBACK'); } catch { /* no-op */ } fail(res, error); }
+    finally { client.release(); }
   });
 
   app.post('/api/admin/purchases', async (req, res) => {
@@ -203,20 +216,22 @@ export function registerOperationsRoutes(app: Express, isAdminRequest: Auth, get
     if (!items.length) { res.status(400).json({ error: 'La compra debe contener ingredientes' }); return; }
     const db = getDb();
     const purchaseId = crypto.randomUUID();
+    const client = await db.connect();
     try {
-      await db.query('BEGIN');
+      await client.query('BEGIN');
       for (const item of items) {
         const ingredientId = text(item?.ingredientId, 'ingredientId');
         const quantity = qty(item?.quantity, 'quantity');
         const unitCostCents = money(item?.unitCostCents ?? 0, 'unitCostCents');
-        const updated = await db.query('UPDATE inventory_ingredients SET quantity=quantity+$1,cost_per_unit_cents=$2,updated_at=NOW() WHERE id=$3 RETURNING id', [quantity, unitCostCents, ingredientId]);
+        const updated = await client.query('UPDATE inventory_ingredients SET quantity=quantity+$1,cost_per_unit_cents=$2,updated_at=NOW() WHERE id=$3 RETURNING id', [quantity, unitCostCents, ingredientId]);
         if (!updated.rowCount) throw new Error(`Ingrediente no encontrado: ${ingredientId}`);
-        await db.query(`INSERT INTO inventory_movements (id,ingredient_id,movement_type,quantity,unit_cost_cents,reference_id,note)
+        await client.query(`INSERT INTO inventory_movements (id,ingredient_id,movement_type,quantity,unit_cost_cents,reference_id,note)
           VALUES ($1,$2,'purchase',$3,$4,$5,$6)`, [crypto.randomUUID(), ingredientId, quantity, unitCostCents, purchaseId, String(req.body?.supplier || '').slice(0,160)]);
       }
-      await audit(db, 'create', 'purchase', purchaseId, { itemCount: items.length });
-      await db.query('COMMIT');
+      await audit(client, 'create', 'purchase', purchaseId, { itemCount: items.length });
+      await client.query('COMMIT');
       res.status(201).json({ ok: true, purchaseId, itemCount: items.length });
-    } catch (error) { try { await db.query('ROLLBACK'); } catch { /* no-op */ } fail(res, error); }
+    } catch (error) { try { await client.query('ROLLBACK'); } catch { /* no-op */ } fail(res, error); }
+    finally { client.release(); }
   });
 }

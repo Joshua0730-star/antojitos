@@ -71,6 +71,7 @@ export interface IAIService {
   generateReply(
     history: ChatMessage[],
     userMessage: string,
-    imageUrl?: string
+    imageUrl?: string,
+    requestId?: string
   ): Promise<AIResponse>;
 }

@@ -1,4 +1,7 @@
 export interface IWhatsAppService {
+  /** Lista interactiva nativa de WhatsApp. Si el proveedor no la soporta,
+   * el caso de uso debe conservar el texto numerado como respaldo. */
+  sendInteractiveList?(to: string, list: WhatsAppInteractiveList): Promise<boolean>;
   /**
    * Envía un mensaje de texto a un destinatario.
    */
@@ -26,4 +29,15 @@ export interface IWhatsAppService {
    * Marca un mensaje como leído (doble check azul) en WhatsApp Cloud API.
    */
   markAsRead?(messageId: string, details?: { remoteJid: string; remoteJidAlt?: string; fromMe: boolean }): Promise<boolean>;
+}
+
+export interface WhatsAppInteractiveList {
+  header?: string;
+  body: string;
+  footer?: string;
+  button: string;
+  sections: Array<{
+    title?: string;
+    rows: Array<{ id: string; title: string; description?: string }>;
+  }>;
 }

@@ -13,6 +13,7 @@ export interface OrderProps {
   cashBillAmount?: number;
   nequiReference?: string;
   nequiVerified?: boolean;
+  deliveryFee?: number;
   status?: OrderStatus;
   createdAt?: Date;
 }
@@ -25,6 +26,7 @@ export class Order {
   public readonly cashBillAmount?: number;
   public nequiReference?: string;
   public nequiVerified: boolean;
+  public readonly deliveryFee: number;
   public status: OrderStatus;
   public readonly createdAt: Date;
 
@@ -39,12 +41,20 @@ export class Order {
     this.cashBillAmount = props.cashBillAmount;
     this.nequiReference = props.nequiReference;
     this.nequiVerified = props.nequiVerified || false;
+    this.deliveryFee = props.deliveryFee ?? 0;
+    if (!Number.isInteger(this.deliveryFee) || this.deliveryFee < 0) {
+      throw new Error('La tarifa de domicilio debe ser un entero no negativo');
+    }
     this.status = props.status || OrderStatus.draft();
     this.createdAt = props.createdAt || new Date();
   }
 
-  public getTotal(): Money {
+  public getSubtotal(): Money {
     return this.items.reduce((total, item) => total.add(item.getSubtotal()), Money.zero());
+  }
+
+  public getTotal(): Money {
+    return this.getSubtotal().add(Money.cop(this.deliveryFee));
   }
 
   public calculateChange(): Money | null {

@@ -179,7 +179,9 @@ app.get('/api/admin/status', async (req, res) => {
   const schedule = await container.operatingSchedule.getStatusAsync();
   res.json({
     ready: checks.every(check => check.ok), checks, schedule,
-    state: { kind: schedule.open ? 'active' : 'off_hours', label: schedule.open ? 'Activo' : 'Fuera de horario' },
+    state: schedule.globallyPaused
+      ? { kind: 'paused', label: 'Pausado globalmente' }
+      : { kind: schedule.open ? 'active' : 'off_hours', label: schedule.open ? 'Activo' : 'Fuera de horario' },
     dashboard, metrics: container.observability.getSnapshot()
   });
 });
@@ -320,17 +322,19 @@ app.post('/api/admin/recipes', async (req, res) => {
     const items = Array.isArray(req.body?.items) ? req.body.items : [];
     if (!items.length || items.length > 100) throw new Error('La receta debe tener entre 1 y 100 ingredientes');
     const db = adminDatabase();
-    await db.query('BEGIN');
+    const client = await db.connect();
     try {
-      await db.query('DELETE FROM product_recipe_items WHERE variant_id=$1', [variantId]);
+      await client.query('BEGIN');
+      await client.query('DELETE FROM product_recipe_items WHERE variant_id=$1', [variantId]);
       for (const item of items) {
         const ingredientId = requiredText(item?.ingredientId, 'ingredientId');
         const quantity = nonNegativeNumber(item?.quantity, 'quantity');
         if (quantity <= 0) throw new Error('quantity debe ser mayor que cero');
-        await db.query('INSERT INTO product_recipe_items (variant_id,ingredient_id,quantity) VALUES ($1,$2,$3)', [variantId, ingredientId, quantity]);
+        await client.query('INSERT INTO product_recipe_items (variant_id,ingredient_id,quantity) VALUES ($1,$2,$3)', [variantId, ingredientId, quantity]);
       }
-      await db.query('COMMIT');
-    } catch (error) { await db.query('ROLLBACK'); throw error; }
+      await client.query('COMMIT');
+    } catch (error) { await client.query('ROLLBACK'); throw error; }
+    finally { client.release(); }
     await db.query('INSERT INTO admin_audit_log (id,action,resource_type,resource_id,metadata) VALUES ($1,$2,$3,$4,$5)', [crypto.randomUUID(), 'replace', 'recipe', variantId, JSON.stringify({ itemCount: items.length })]);
     res.json({ ok: true, variantId, itemCount: items.length });
   } catch (error) { res.status(400).json({ error: error instanceof Error ? error.message : 'No se pudo guardar la receta' }); }
@@ -341,6 +345,11 @@ app.post('/api/admin/command', async (req, res) => {
   const command = typeof req.body?.command === 'string' ? req.body.command.trim().toLowerCase() : '';
   const phone = typeof req.body?.phoneNumber === 'string' ? req.body.phoneNumber.replace(/\D/g, '') : '';
   const pauseMinutes = req.body?.pauseMinutes === undefined ? undefined : Number(req.body.pauseMinutes);
+  if (command === '!bot global off' || command === '!bot global on') {
+    const handled = await container.operatingSchedule.handleOperatorCommand(command);
+    res.json({ ok: handled, schedule: await container.operatingSchedule.getStatusAsync() });
+    return;
+  }
   if (command === '!horario on' || command === '!horario abrir' || command === '!horario off' || command === '!horario cerrar') {
     const handled = await container.operatingSchedule.handleOperatorCommand(command);
     res.json({ ok: handled, schedule: await container.operatingSchedule.getStatusAsync() });

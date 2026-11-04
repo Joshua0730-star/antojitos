@@ -49,6 +49,8 @@ describe('Meta WhatsApp Coexistence & Human Handoff (WhatsApp Cloud API + Mobile
     expect(state.coexistenceStatus).toBe('HUMAN_TAKE-OVER');
     expect(state.lastHumanInteraction).toBeDefined();
     expect(state.messages.at(-1)?.role).toBe('assistant');
+    expect(state.messages.at(-1)?.author).toBe('human');
+    expect(state.messages.at(-1)?.source).toBe('human_mobile');
     expect(state.messages.at(-1)?.content).toContain('Te atiendo personalmente');
 
     // El cliente envía un mensaje 2 minutos después
@@ -104,6 +106,16 @@ describe('Meta WhatsApp Coexistence & Human Handoff (WhatsApp Cloud API + Mobile
     const decisionAfterOn = await coexistenceService.evaluateAccess(customer, 'Hola quiero pedir');
     expect(decisionAfterOn.canRespond).toBe(true);
     expect(decisionAfterOn.status).toBe('BOT_ACTIVE');
+  });
+
+  it('trata un JID telefónico de Evolution como el mismo teléfono pausado por el operador', async () => {
+    const customer = '+573009991111';
+    await coexistenceService.evaluateAccess(customer, '!bot off');
+
+    const decision = await coexistenceService.evaluateAccess('573009991111@s.whatsapp.net', 'Quiero pedir');
+
+    expect(decision.canRespond).toBe(false);
+    expect(decision.status).toBe('HUMAN_TAKE-OVER');
   });
 
   it('permite configurar la duración de la pausa por conversación', async () => {
@@ -214,8 +226,8 @@ describe('Meta WhatsApp Coexistence & Human Handoff (WhatsApp Cloud API + Mobile
 
     const accumulated = await conversationRepo.getState('573004443322');
     expect(accumulated.messages).toEqual(expect.arrayContaining([
-      expect.objectContaining({ role: 'assistant', content: 'Hola, ya te estamos preparando tu pedido' }),
-      expect.objectContaining({ role: 'user', content: '¡Muchas gracias por la atención!' })
+      expect.objectContaining({ role: 'assistant', author: 'human', content: 'Hola, ya te estamos preparando tu pedido' }),
+      expect.objectContaining({ role: 'user', author: 'customer', content: '¡Muchas gracias por la atención!' })
     ]));
   });
 

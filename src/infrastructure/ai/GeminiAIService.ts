@@ -18,7 +18,8 @@ export class GeminiAIService implements IAIService {
   public async generateReply(
     history: ChatMessage[],
     userMessage: string,
-    imageUrl?: string
+    imageUrl?: string,
+    requestId?: string
   ): Promise<AIResponse> {
     const executedTools: ToolCallResult[] = [];
 
@@ -28,6 +29,17 @@ export class GeminiAIService implements IAIService {
       tools: [
         {
           functionDeclarations: [
+            {
+              name: 'calcular_total_pedido',
+              description: 'Valida el pedido contra el catálogo y calcula subtotal, domicilio y total exactos en COP. Usar antes de informar un total o validar un comprobante.',
+              parameters: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  detalles_json: { type: SchemaType.OBJECT, properties: {} }
+                },
+                required: ['detalles_json']
+              }
+            },
             {
               name: 'obtener_catalogo',
               description: 'Retorna la lista de productos disponibles, categorías, precios y opciones de personalización de Antojitos.',
@@ -43,9 +55,11 @@ export class GeminiAIService implements IAIService {
                 type: SchemaType.OBJECT,
                 properties: {
                   image_url: { type: SchemaType.STRING },
-                  monto_esperado: { type: SchemaType.NUMBER }
+                  monto_esperado: { type: SchemaType.NUMBER },
+                  order_id: { type: SchemaType.STRING },
+                  telefono: { type: SchemaType.STRING }
                 },
-                required: ['image_url', 'monto_esperado']
+                required: ['image_url']
               }
             },
             {
@@ -68,7 +82,9 @@ export class GeminiAIService implements IAIService {
     const chat = model.startChat({
       history: history.map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }]
+        parts: [{ text: msg.author === 'human'
+          ? `[Mensaje enviado por un encargado humano; úsalo como contexto, no como promesa del bot]: ${msg.content}`
+          : msg.content }]
       }))
     });
 
@@ -103,7 +119,7 @@ export class GeminiAIService implements IAIService {
 
       let toolOutput: any;
       try {
-        toolOutput = await this.toolExecutor.executeTool(functionName, functionArgs);
+        toolOutput = await this.toolExecutor.executeTool(functionName, functionArgs, requestId);
       } catch (e: any) {
         toolOutput = { error: e.message };
       }

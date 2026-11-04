@@ -1,9 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs';
 import { createContainer, AppContainer } from '../src/infrastructure/di/container.js';
 import { SimulatorWhatsAppAdapter } from '../src/infrastructure/whatsapp/SimulatorWhatsAppAdapter.js';
 
 import { MockAIService } from '../src/infrastructure/ai/MockAIService.js';
 import { MockVisionService } from '../src/infrastructure/vision/MockVisionService.js';
+import { FileOrderRepository } from '../src/infrastructure/persistence/FileOrderRepository.js';
+import { FileNequiReceiptRepository } from '../src/infrastructure/persistence/FileNequiReceiptRepository.js';
+import { FileConversationRepository } from '../src/infrastructure/persistence/FileConversationRepository.js';
 
 describe('End-to-End Conversation Flow (State Machine: Steps 1 to 6)', () => {
   let container: AppContainer;
@@ -13,9 +19,15 @@ describe('End-to-End Conversation Flow (State Machine: Steps 1 to 6)', () => {
   beforeEach(async () => {
     simulatorAdapter = new SimulatorWhatsAppAdapter();
     const mockVisionService = new MockVisionService();
-    const tempContainer = createContainer({ whatsAppService: simulatorAdapter, visionService: mockVisionService });
+    const storageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'antojitos-e2e-'));
+    const repositories = {
+      orderRepository: new FileOrderRepository(storageDir),
+      receiptRepository: new FileNequiReceiptRepository(storageDir),
+      conversationRepository: new FileConversationRepository(storageDir)
+    };
+    const tempContainer = createContainer({ ...repositories, whatsAppService: simulatorAdapter, visionService: mockVisionService });
     const mockAiService = new MockAIService(tempContainer.toolExecutor);
-    container = createContainer({ whatsAppService: simulatorAdapter, visionService: mockVisionService, aiService: mockAiService });
+    container = createContainer({ ...repositories, whatsAppService: simulatorAdapter, visionService: mockVisionService, aiService: mockAiService });
     await container.conversationRepository.clearConversation(customerPhone);
   });
 
@@ -59,28 +71,36 @@ describe('End-to-End Conversation Flow (State Machine: Steps 1 to 6)', () => {
     expect(turn4.replyMessage).toContain('TOTAL A PAGAR');
     expect(turn4.replyMessage).toContain('Nequi');
 
+    const trackedState = await container.conversationRepository.getState('573005557788');
+    expect(trackedState.fsmSession?.delivery.mode).toBe('DELIVERY');
+    expect(trackedState.fsmSession?.delivery.address).toContain('Cra 15');
+    expect(trackedState.currentStep).toBeGreaterThanOrEqual(3);
+
     // PASO 4 & 5: Pago con Nequi y Envío de Comprobante
     const turn5 = await container.processIncomingMessageUseCase.execute({
       from: customerPhone,
       text: 'Aquí está mi comprobante de Nequi',
-      imageUrl: 'comprobante_nequi_16000.jpg'
+      imageUrl: 'comprobante_nequi_23000.jpg'
     });
 
     expect(turn5.replied).toBe(true);
-    expect(turn5.replyMessage).toMatch(/^✅ Pedido confirmado a nombre de \*Cliente Prueba\*\. Orden #ANT-\d{4}\. 🍓$/);
+    expect(turn5.replyMessage).toContain('✅ Comprobante recibido y pago verificado');
+    expect(turn5.replyMessage).toContain('Tu pedido continúa en preparación');
+    const completedState = await container.conversationRepository.getState('573005557788');
+    expect(completedState.currentOrderId).toMatch(/^ANT-\d{8}-[A-F0-9]{8}$/);
+    expect(completedState.currentStep).toBe(6);
 
     // PASO 6: Verificación de despacho a cocina
     const kitchenAlert = simulatorAdapter.getLatestKitchenAlert();
     expect(kitchenAlert).toBeDefined();
     expect(kitchenAlert).toContain('🚨 *¡NUEVO PEDIDO CONFIRMADO!* 🚨');
     expect(kitchenAlert).toContain('Fresas con Crema Especiales');
-    expect(kitchenAlert).toContain('Nequi (VERIFICADO ✅)');
+    expect(kitchenAlert).toContain('Nequi (PENDIENTE DE VERIFICACIÓN)');
 
     // Verificar que la orden quedó guardada en la base de datos
-    const orders = await container.orderRepository.listAll();
-    expect(orders.length).toBeGreaterThanOrEqual(1);
-    const lastOrder = orders[orders.length - 1];
-    expect(lastOrder.nequiVerified).toBe(true);
-    expect(lastOrder.status.value).toBe('SENT_TO_KITCHEN');
+    const lastOrder = await container.orderRepository.findLatestByPhoneNumber('573001234567');
+    expect(lastOrder).not.toBeNull();
+    expect(lastOrder?.nequiVerified).toBe(true);
+    expect(lastOrder?.status.value).toBe('PAYMENT_VERIFIED');
   }, 30000);
 });

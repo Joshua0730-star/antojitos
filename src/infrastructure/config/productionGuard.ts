@@ -22,7 +22,12 @@ export function assertProductionConfiguration(): void {
   if (!ENV.REDIS_URL && !ENV.REDIS_HOST) missing.push('REDIS_URL o REDIS_HOST');
   if (ENV.REDIS_URL && !ENV.REDIS_URL.startsWith('rediss://')) missing.push('REDIS_URL (debe usar rediss://)');
   if (!ENV.ADMIN_API_TOKEN) missing.push('ADMIN_API_TOKEN');
-  if (ENV.ENABLE_ORDER_OUTBOX && !ENV.PANEL_API_URL) missing.push('PANEL_API_URL cuando ENABLE_ORDER_OUTBOX=true');
+  // The current admin panel is in this service and reads PostgreSQL directly.
+  // An external panel/outbox publisher is optional until a separate consumer
+  // implementing POST /api/v1/orders is deployed.
+  if (ENV.ENABLE_ORDER_OUTBOX && !ENV.PANEL_API_URL) {
+    missing.push('PANEL_API_URL cuando se activa el outbox externo');
+  }
 
   if (missing.length > 0) {
     throw new Error(`Configuración de producción incompleta: ${missing.join(', ')}`);

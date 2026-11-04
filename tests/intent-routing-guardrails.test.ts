@@ -37,7 +37,7 @@ describe('AI Optimization Pillars: Intent Routing, Guardrails & Reliability', ()
       const matchMenu = intentRouter.routeIntent('ver menu');
       expect(matchMenu).not.toBeNull();
       expect(matchMenu?.intent).toBe('menu_request');
-      expect(matchMenu?.response).toContain('Fresas con Crema');
+      expect(matchMenu?.response).toContain('PDF');
     });
 
     it('enruta consultas de horarios y ubicación', () => {
@@ -71,6 +71,61 @@ describe('AI Optimization Pillars: Intent Routing, Guardrails & Reliability', ()
       const match = intentRouter.routeIntent('Quiero una oblea especial');
       expect(match?.intent).toBe('product_selection');
       expect(match?.response).toContain('Oblea especial');
+    });
+
+    it('envía el PDF cuando el cliente pide el menú con una expresión informal', async () => {
+      const whatsApp: IWhatsAppService = {
+        sendMessage: vi.fn().mockResolvedValue(true),
+        sendImage: vi.fn().mockResolvedValue(true),
+        sendDocument: vi.fn().mockResolvedValue(true),
+        sendKitchenAlert: vi.fn().mockResolvedValue(true)
+      };
+      const useCase = new ProcessIncomingMessageUseCase(
+        { generateReply: vi.fn() },
+        whatsApp,
+        conversationRepo,
+        undefined,
+        undefined,
+        intentRouter,
+        guardrails
+      );
+
+      const result = await useCase.execute({ from: '+573001239999', text: 'Me regalas el menú porfis' });
+
+      expect(result.replyMessage).toContain('PDF');
+      expect(whatsApp.sendDocument).toHaveBeenCalledWith(
+        '+573001239999',
+        expect.stringContaining('/menu.pdf'),
+        'menu_antojitos_v2.pdf',
+        'Menú completo de Antojitos'
+      );
+    });
+
+    it('no confunde un primer pedido de 18 mil con una restricción geográfica', async () => {
+      const whatsApp: IWhatsAppService = {
+        sendMessage: vi.fn().mockResolvedValue(true),
+        sendImage: vi.fn().mockResolvedValue(true),
+        sendKitchenAlert: vi.fn().mockResolvedValue(true)
+      };
+      const ai = { generateReply: vi.fn() } as unknown as IAIService;
+      const useCase = new ProcessIncomingMessageUseCase(
+        ai,
+        whatsApp,
+        conversationRepo,
+        undefined,
+        undefined,
+        intentRouter,
+        guardrails
+      );
+
+      const result = await useCase.execute({
+        from: '+573001239999',
+        text: 'hola mani, me regalas una fresa de 18 mil'
+      });
+
+      expect(result.replyMessage).toContain('Fresas con crema 12 oz');
+      expect(result.replyMessage).not.toContain('Solo atendemos');
+      expect(ai.generateReply).not.toHaveBeenCalled();
     });
   });
 

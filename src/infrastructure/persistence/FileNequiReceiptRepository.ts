@@ -35,13 +35,34 @@ export class FileNequiReceiptRepository implements INequiReceiptRepository {
     return items.some(item => item.reference.trim().toUpperCase() === cleanRef);
   }
 
+  public async saveIfReferenceUnused(receipt: NequiReceipt): Promise<boolean> {
+    const items = this.readAll();
+    const cleanRef = receipt.reference.trim().toUpperCase();
+    if (items.some(item => item.reference.trim().toUpperCase() === cleanRef)) return false;
+    items.push(this.toPayload(receipt));
+    this.writeAll(items);
+    return true;
+  }
+
   public async save(receipt: NequiReceipt): Promise<void> {
     const items = this.readAll();
     const existingIndex = items.findIndex(
       item => item.reference.trim().toUpperCase() === receipt.reference.trim().toUpperCase()
     );
 
-    const record: NequiReceiptProps = {
+    const record = this.toPayload(receipt);
+
+    if (existingIndex >= 0) {
+      items[existingIndex] = record;
+    } else {
+      items.push(record);
+    }
+
+    this.writeAll(items);
+  }
+
+  private toPayload(receipt: NequiReceipt): NequiReceiptProps {
+    return {
       id: receipt.id || `REC-${Date.now()}`,
       reference: receipt.reference,
       amount: receipt.amount,
@@ -53,14 +74,6 @@ export class FileNequiReceiptRepository implements INequiReceiptRepository {
       orderId: receipt.orderId,
       createdAt: receipt.createdAt
     };
-
-    if (existingIndex >= 0) {
-      items[existingIndex] = record;
-    } else {
-      items.push(record);
-    }
-
-    this.writeAll(items);
   }
 
   public async findByReference(reference: string): Promise<NequiReceipt | null> {

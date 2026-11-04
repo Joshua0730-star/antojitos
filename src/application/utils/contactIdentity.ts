@@ -10,8 +10,15 @@ export function normalizeContactIdentity(value: string): string {
   const identity = String(value || '').trim();
   if (!identity) throw new Error('Identificador de contacto vacío');
 
-  // JID/LID (por ejemplo 573001234567@s.whatsapp.net o usuario@lid).
-  if (identity.includes('@')) return identity;
+  // A phone JID and its plain phone number are the same conversation. Keep
+  // non-phone LIDs intact, but canonicalize numeric JIDs so an operator pause
+  // cannot be bypassed by a provider changing the identifier format.
+  if (identity.includes('@')) {
+    const [localPart, server] = identity.split('@', 2);
+    const jidDigits = localPart.replace(/\D/g, '');
+    if (jidDigits.length >= 7 && server?.toLowerCase().includes('whatsapp')) return jidDigits;
+    return identity;
+  }
 
   const digits = identity.replace(/\D/g, '');
   if (digits.length >= 7) return digits;

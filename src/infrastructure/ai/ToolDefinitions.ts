@@ -3,11 +3,12 @@ export const AI_TOOLS_DEFINITIONS = [
     type: 'function' as const,
     function: {
       name: 'calcular_domicilio',
-      description: 'Calcula la tarifa determinista de domicilio usando el barrio confirmado por el cliente. La hora la obtiene el sistema; la lluvia es opcional y solo debe venir de una fuente interna, nunca preguntarse al cliente.',
+      description: 'Calcula la tarifa determinista de domicilio únicamente para pedidos con producto definido, barrio confirmado y municipio Pueblo Bello. La hora la obtiene el sistema; la lluvia es opcional y solo debe venir de una fuente interna, nunca preguntarse al cliente.',
       parameters: {
         type: 'object',
         properties: {
           barrio: { type: 'string' },
+          municipio: { type: 'string', description: 'Debe ser Pueblo Bello.' },
           llueve: { type: 'boolean', description: 'Dato interno opcional de clima; no pedirlo al cliente.' }
         },
         required: ['barrio']
@@ -29,6 +30,23 @@ export const AI_TOOLS_DEFINITIONS = [
   {
     type: 'function' as const,
     function: {
+      name: 'calcular_total_pedido',
+      description: 'Valida el pedido contra el catálogo y calcula subtotal, domicilio y total exactos en COP. Debe usarse antes de informar un total o validar un comprobante.',
+      parameters: {
+        type: 'object',
+        properties: {
+          detalles_json: {
+            type: 'object',
+            description: 'Pedido estructurado con cliente, items, modalidad y método de pago.'
+          }
+        },
+        required: ['detalles_json']
+      }
+    }
+  },
+  {
+    type: 'function' as const,
+    function: {
       name: 'validar_comprobante_nequi',
       description: 'Valida un comprobante de pago Nequi analizando la imagen vía OCR, comprobando el monto esperado, la fecha de hoy y verificando que el número de referencia no haya sido utilizado antes.',
       parameters: {
@@ -40,10 +58,18 @@ export const AI_TOOLS_DEFINITIONS = [
           },
           monto_esperado: {
             type: 'number',
-            description: 'Total en pesos colombianos (COP) que el cliente debe pagar por el pedido actual.'
+            description: 'Campo legado. El servidor ignora este valor cuando puede resolver la orden persistida.'
+          },
+          order_id: {
+            type: 'string',
+            description: 'ID de la orden persistida devuelto por notificar_cocina.'
+          },
+          telefono: {
+            type: 'string',
+            description: 'Teléfono del cliente si todavía no se dispone del ID de orden.'
           }
         },
-        required: ['image_url', 'monto_esperado']
+        required: ['image_url']
       }
     }
   },
@@ -71,6 +97,7 @@ export const AI_TOOLS_DEFINITIONS = [
                   tipo_entrega: { type: 'string', enum: ['DOMICILIO', 'RECOGER_EN_LOCAL'] },
                   direccion: { type: 'string' },
                   barrio_municipio: { type: 'string' },
+                  municipio: { type: 'string', description: 'Debe ser Pueblo Bello. Antojitos no atiende otros municipios.' },
                   especificaciones: { type: 'string' }
                 },
                 required: ['nombre', 'tipo_entrega']

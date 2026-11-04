@@ -7,6 +7,8 @@ export interface INequiReceiptRepository {
    */
   existsReference(reference: string): Promise<boolean>;
 
+  saveIfReferenceUnused(receipt: NequiReceipt): Promise<boolean>;
+
   /**
    * Guarda un comprobante verificado en la base de datos.
    */

@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { ENV } from '../config/env.js';
+import type { ChatMessage, ConversationState } from '../../domain/repositories/IConversationRepository.js';
 
 let pool: Pool | undefined;
 
@@ -26,8 +27,12 @@ export async function initializePostgresSchema(): Promise<void> {
       id TEXT PRIMARY KEY,
       phone_number TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL,
-      payload JSONB NOT NULL
+      payload JSONB NOT NULL,
+      idempotency_key TEXT
     );
+    ALTER TABLE bot_orders ADD COLUMN IF NOT EXISTS idempotency_key TEXT;
+    CREATE UNIQUE INDEX IF NOT EXISTS bot_orders_idempotency_key_idx
+      ON bot_orders (idempotency_key) WHERE idempotency_key IS NOT NULL;
     CREATE INDEX IF NOT EXISTS bot_orders_phone_created_idx
       ON bot_orders (phone_number, created_at DESC);
     CREATE INDEX IF NOT EXISTS bot_orders_created_id_idx
@@ -124,6 +129,8 @@ export async function initializePostgresSchema(): Promise<void> {
       unit_price_cents INTEGER NOT NULL CHECK (unit_price_cents >= 0),
       customizations JSONB NOT NULL DEFAULT '{}'::jsonb
     );
+    CREATE UNIQUE INDEX IF NOT EXISTS sales_order_id_unique_idx
+      ON sales (order_id) WHERE order_id IS NOT NULL;
     CREATE TABLE IF NOT EXISTS admin_audit_log (
       id TEXT PRIMARY KEY,
       action TEXT NOT NULL,
@@ -176,6 +183,82 @@ export async function initializePostgresSchema(): Promise<void> {
     CREATE INDEX IF NOT EXISTS order_outbox_status_created_idx
       ON order_outbox (status, created_at);
   `);
+
+  await mergeLegacyPhoneJidConversations(db);
+}
+
+/**
+ * Evolution puede haber persistido el mismo contacto como teléfono plano y
+ * como 573...@s.whatsapp.net. Se fusionan solo esos JID telefónicos; los LID
+ * permanecen separados porque no se pueden mapear con seguridad a un teléfono.
+ */
+async function mergeLegacyPhoneJidConversations(db: Pool): Promise<void> {
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query<{
+      phone_number: string;
+      canonical_phone: string;
+    }>(`SELECT phone_number, regexp_replace(phone_number, '@[^@]+$', '') AS canonical_phone
+        FROM bot_conversations
+        WHERE phone_number ~ '^[0-9]+@s\.whatsapp\.net$'`);
+
+    for (const legacy of rows) {
+      const canonical = await client.query<{
+        phone_number: string;
+        messages: ChatMessage[];
+        current_step: number;
+        current_order_id: string | null;
+        coexistence_status: ConversationState['coexistenceStatus'];
+        last_human_interaction: Date | null;
+        human_takeover_started_at: Date | null;
+        human_pause_until: Date | null;
+        bot_paused_indefinitely: boolean;
+        fsm_session: ConversationState['fsmSession'] | null;
+        updated_at: Date;
+      }>('SELECT * FROM bot_conversations WHERE phone_number = $1 FOR UPDATE', [legacy.canonical_phone]);
+      const duplicate = await client.query<typeof canonical.rows[number]>(
+        'SELECT * FROM bot_conversations WHERE phone_number = $1 FOR UPDATE',
+        [legacy.phone_number]
+      );
+      const old = duplicate.rows[0];
+      if (!old) continue;
+
+      if (!canonical.rows[0]) {
+        await client.query('UPDATE bot_conversations SET phone_number = $1 WHERE phone_number = $2', [legacy.canonical_phone, legacy.phone_number]);
+        continue;
+      }
+
+      const current = canonical.rows[0];
+      const messages = [...(current.messages || []), ...(old.messages || [])]
+        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      const newest = new Date(old.updated_at).getTime() > new Date(current.updated_at).getTime() ? old : current;
+      await client.query(
+        `UPDATE bot_conversations SET
+          messages = $1::jsonb,
+          current_step = $2,
+          current_order_id = $3,
+          coexistence_status = $4,
+          last_human_interaction = $5,
+          human_takeover_started_at = $6,
+          human_pause_until = $7,
+          bot_paused_indefinitely = $8,
+          fsm_session = $9::jsonb,
+          updated_at = $10
+         WHERE phone_number = $11`,
+        [JSON.stringify(messages), newest.current_step, newest.current_order_id, newest.coexistence_status,
+          newest.last_human_interaction, newest.human_takeover_started_at, newest.human_pause_until,
+          newest.bot_paused_indefinitely, JSON.stringify(newest.fsm_session), newest.updated_at, legacy.canonical_phone]
+      );
+      await client.query('DELETE FROM bot_conversations WHERE phone_number = $1', [legacy.phone_number]);
+    }
+    await client.query('COMMIT');
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch { /* preserve original error */ }
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function closePostgresPool(): Promise<void> {

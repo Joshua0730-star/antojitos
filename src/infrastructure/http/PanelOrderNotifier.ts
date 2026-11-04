@@ -132,8 +132,9 @@ export class PanelOrderNotifier implements IPanelOrderNotifier {
   }
 
   private toPayload(order: Order): PanelOrderPayload {
-    const subtotal = order.getTotal().amount;
-    const deliveryFee = typeof this.deliveryFee === 'function' ? this.deliveryFee(order) : this.deliveryFee;
+    const subtotal = order.getSubtotal().amount;
+    const configuredDeliveryFee = typeof this.deliveryFee === 'function' ? this.deliveryFee(order) : this.deliveryFee;
+    const deliveryFee = order.deliveryFee > 0 ? order.deliveryFee : configuredDeliveryFee;
     if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
       throw new Error('deliveryFee debe ser un número finito no negativo');
     }

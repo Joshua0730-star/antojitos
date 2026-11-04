@@ -1,6 +1,7 @@
 import { IVisionService } from '../ports/IVisionService.js';
 import { INequiReceiptRepository } from '../../domain/repositories/INequiReceiptRepository.js';
 import { NequiReceipt } from '../../domain/entities/NequiReceipt.js';
+import type { IOrderPaymentPort } from '../ports/IOrderPaymentPort.js';
 
 export interface ValidateReceiptInput {
   imageUrl: string;
@@ -17,7 +18,8 @@ export interface ValidateReceiptOutput {
 export class ValidateNequiReceiptUseCase {
   constructor(
     private readonly visionService: IVisionService,
-    private readonly receiptRepository: INequiReceiptRepository
+    private readonly receiptRepository: INequiReceiptRepository,
+    private readonly orderPaymentPort?: IOrderPaymentPort
   ) {}
 
   public async execute(input: ValidateReceiptInput): Promise<ValidateReceiptOutput> {
@@ -52,17 +54,7 @@ export class ValidateNequiReceiptUseCase {
 
       const reference = ocrData.numero_m39_referencia.trim().toUpperCase();
 
-      // 3. Validar unicidad de referencia (Anti-Fraude de reuso)
-      const alreadyExists = await this.receiptRepository.existsReference(reference);
-      if (alreadyExists) {
-        return {
-          exito: false,
-          mensaje: `El número de referencia ${reference} ya fue utilizado en un pedido anterior. Por favor verifica tu comprobante.`,
-          referencia: reference
-        };
-      }
-
-      // 4. Validar monto
+      // 3. Validar monto
       if (ocrData.monto < input.expectedAmount) {
         return {
           exito: false,
@@ -71,7 +63,7 @@ export class ValidateNequiReceiptUseCase {
         };
       }
 
-      // 5. Validar fecha actual (mismo año-mes-día)
+      // 4. Validar fecha actual (mismo año-mes-día)
       const nowStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
       const receiptDate = ocrData.fecha_hora.slice(0, 10);
       if (receiptDate && receiptDate !== nowStr) {
@@ -87,7 +79,7 @@ export class ValidateNequiReceiptUseCase {
         }
       }
 
-      // 6. Guardar en base de datos como comprobante consumido
+      // 5. Reservar la referencia de forma atómica después de validar el comprobante.
       const receiptEntity = new NequiReceipt({
         reference,
         amount: ocrData.monto,
@@ -99,7 +91,25 @@ export class ValidateNequiReceiptUseCase {
         orderId: input.orderId
       });
 
-      await this.receiptRepository.save(receiptEntity);
+      const reserved = await this.receiptRepository.saveIfReferenceUnused(receiptEntity);
+      if (!reserved) {
+        return {
+          exito: false,
+          mensaje: `El número de referencia ${reference} ya fue utilizado en un pedido anterior. Por favor verifica tu comprobante.`,
+          referencia: reference
+        };
+      }
+
+      if (input.orderId && this.orderPaymentPort) {
+        const marked = await this.orderPaymentPort.markPaymentVerified(input.orderId, reference);
+        if (!marked) {
+          return {
+            exito: false,
+            mensaje: 'El comprobante fue leído, pero la orden ya no está disponible para marcarse como pagada. Requiere revisión humana.',
+            referencia: reference
+          };
+        }
+      }
 
       return {
         exito: true,

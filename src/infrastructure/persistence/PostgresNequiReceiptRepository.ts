@@ -13,6 +13,28 @@ export class PostgresNequiReceiptRepository implements INequiReceiptRepository {
     return result.rowCount !== 0;
   }
 
+  async saveIfReferenceUnused(receipt: NequiReceipt): Promise<boolean> {
+    const payload: NequiReceiptProps = {
+      id: receipt.id || `REC-${Date.now()}`,
+      reference: receipt.reference,
+      amount: receipt.amount,
+      transactionDate: receipt.transactionDate,
+      isNequiReceipt: receipt.isNequiReceipt,
+      isLegible: receipt.isLegible,
+      fraudSuspicion: receipt.fraudSuspicion,
+      imageUrl: receipt.imageUrl,
+      orderId: receipt.orderId,
+      createdAt: receipt.createdAt
+    };
+    const result = await this.db.query(
+      `INSERT INTO nequi_receipts (normalized_reference, id, payload)
+       VALUES ($1, $2, $3::jsonb)
+       ON CONFLICT (normalized_reference) DO NOTHING`,
+      [receipt.reference.trim().toUpperCase(), payload.id, JSON.stringify(payload)]
+    );
+    return result.rowCount === 1;
+  }
+
   async save(receipt: NequiReceipt): Promise<void> {
     const payload: NequiReceiptProps = {
       id: receipt.id || `REC-${Date.now()}`,
@@ -30,7 +52,7 @@ export class PostgresNequiReceiptRepository implements INequiReceiptRepository {
     await this.db.query(
       `INSERT INTO nequi_receipts (normalized_reference, id, payload)
        VALUES ($1, $2, $3::jsonb)
-       ON CONFLICT (normalized_reference) DO UPDATE SET id = EXCLUDED.id, payload = EXCLUDED.payload`,
+       ON CONFLICT (normalized_reference) DO NOTHING`,
       [receipt.reference.trim().toUpperCase(), payload.id, JSON.stringify(payload)]
     );
   }
